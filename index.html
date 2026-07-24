@@ -110,6 +110,47 @@
   .card.big .rk{font-size:24px; top:8px; left:11px}
   .card.big .mid{font-size:48px}
   .card.big .st{font-size:22px; bottom:7px; right:11px}
+  /* ===== スマホ最適化（メイン端末） ===== */
+  @media (max-width:560px){
+    .app{padding:14px 10px 46px; gap:14px}
+    .wrap{gap:14px}
+    header.hd{gap:10px}
+    .stats{gap:6px; width:100%}
+    .stat{flex:1; min-width:0; padding:6px 4px}
+    .stat .n{font-size:18px}
+    .stat .l{font-size:9px; letter-spacing:.06em}
+
+    /* タブ：副題を隠して1行に収める（折り返し防止） */
+    .modetabs{gap:4px; padding:4px}
+    .modetabs button{padding:12px 4px; font-size:13.5px; line-height:1.2}
+    .modetabs button .s{display:none}
+
+    /* タップ標的を指のサイズへ（44px目安） */
+    .seg button{min-height:42px; padding:0 14px; font-size:13px}
+    .preset{min-height:40px; padding:0 15px; font-size:12.5px}
+    .dchip{min-height:40px; padding:0 15px; font-size:12.5px}
+    .info{width:24px; height:24px; font-size:12px; margin-left:5px}
+    .act{min-height:60px; font-size:14px; padding:11px 10px; min-width:0; flex:1 1 30%}
+    .next{min-height:48px; width:100%; padding:11px 20px; font-size:15px}
+    .tag{min-height:52px}
+
+    /* 余白を詰めて本文の横幅を稼ぐ */
+    .rules{padding:10px; gap:10px 12px}
+    .rsec{padding:15px 14px}
+    .rsec h3{font-size:17.5px}
+    .rsec p,.keypt{font-size:14px; line-height:1.85}
+    .felt{padding:16px 10px 18px}
+    .demofelt{padding:16px 8px}
+    .demohead{padding:12px 12px; gap:7px}
+    .demohead h3{width:100%; margin-right:0; margin-bottom:2px}
+    .dbar{padding:12px; gap:9px}
+    .dnote{font-size:14px; padding:13px 14px}
+    .review,.countpanel .hilo,.cControls{padding:12px}
+
+    /* 戦略表：横スクロールで潰さない */
+    .full .inner{overflow-x:auto}
+    .ctable{min-width:330px}
+  }
   @media (prefers-reduced-motion:no-preference){
     .deal{animation:deal .3s cubic-bezier(.2,.8,.3,1) both}
     @keyframes deal{from{opacity:0; transform:translateY(-12px) rotate(-4deg)} to{opacity:1; transform:none}}
@@ -182,6 +223,61 @@
 
   /* counting mode */
   .hidden{display:none !important}
+  /* ===== ルールモード ===== */
+  .rulepanel{display:flex; flex-direction:column; gap:16px}
+  .rsec{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px 18px}
+  .rsec h3{font-family:var(--serif); font-size:19px; font-weight:600; color:var(--gold); margin-bottom:10px;
+    display:flex; align-items:baseline; gap:9px}
+  .rsec h3 .num{font-family:var(--ui); font-size:10px; font-weight:800; letter-spacing:.12em; color:var(--ink-dim);
+    border:1px solid var(--border); border-radius:20px; padding:2px 8px}
+  .rsec p{font-size:13.5px; line-height:1.85; color:var(--ink); margin-bottom:9px}
+  .rsec p:last-child{margin-bottom:0}
+  .rsec b{color:var(--gold)}
+  .rsec .em{color:var(--bad-hi); font-weight:700}
+  .rtable{width:100%; border-collapse:collapse; font-size:13px; margin:4px 0 10px}
+  .rtable th,.rtable td{border:1px solid var(--border); padding:7px 10px; text-align:left; vertical-align:top}
+  .rtable th{background:#00000030; color:var(--ink-dim); font-size:11px; letter-spacing:.06em; font-weight:700}
+  .rtable td:first-child{white-space:nowrap; color:var(--gold); font-weight:700; width:1%}
+  .rtwrap{overflow-x:auto}
+  .keypt{background:#cba24c12; border-left:3px solid var(--gold); border-radius:0 8px 8px 0;
+    padding:10px 13px; font-size:13px; line-height:1.75; color:var(--ink); margin-top:4px}
+  .keypt b{color:var(--gold)}
+  /* デモ */
+  .demo{background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  .demohead{display:flex; flex-wrap:wrap; gap:8px; align-items:center; padding:13px 16px; border-bottom:1px solid var(--border)}
+  .demohead h3{font-family:var(--serif); font-size:19px; color:var(--gold); margin-right:auto}
+  .dchip{appearance:none; border:1px solid var(--border); background:#ffffff10; color:var(--ink-dim);
+    font-family:var(--ui); font-size:11.5px; font-weight:700; padding:6px 12px; border-radius:20px; cursor:pointer;
+    transition:background .15s,color .15s,border-color .15s}
+  .dchip:hover{color:var(--ink); border-color:var(--gold-dim)}
+  .dchip[aria-pressed="true"]{background:var(--gold); color:#241f10; border-color:var(--gold)}
+  .demofelt{background:radial-gradient(ellipse at 50% 12%, #1d5f4a 0%, #144536 55%, #0e3328 100%);
+    padding:20px 16px; display:flex; flex-direction:column; align-items:center; gap:14px; min-height:230px}
+  .dzone{display:flex; flex-direction:column; align-items:center; gap:7px; width:100%}
+  .dzone .rlabel{font-size:10px; letter-spacing:.22em; color:#ffffff66; text-transform:uppercase}
+  .dhands{display:flex; gap:14px; flex-wrap:wrap; justify-content:center}
+  .dhand{display:flex; flex-direction:column; align-items:center; gap:6px; padding:6px 8px; border-radius:12px;
+    border:1px solid transparent}
+  .dhand.on{border-color:var(--gold); background:#cba24c14}
+  .demofelt .card{width:52px; height:74px}
+  .demofelt .card .rk{font-size:14px; top:5px; left:6px}
+  .demofelt .card .mid{font-size:24px}
+  .demofelt .card .st{font-size:13px; bottom:4px; right:6px}
+  .demofelt .cards .card:not(:first-child){margin-left:-14px}
+  .dnote{background:#00000038; border:1px solid var(--border); border-radius:12px; padding:13px 16px;
+    font-size:13.5px; line-height:1.8; color:var(--ink); min-height:64px}
+  .dnote b{color:var(--gold)}
+  .dnote .who{display:block; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-dim); margin-bottom:5px}
+  .dbar{display:flex; gap:10px; align-items:center; padding:12px 16px; border-top:1px solid var(--border); flex-wrap:wrap}
+  .dbtn{appearance:none; border:1px solid var(--gold-dim); background:var(--gold); color:#241f10;
+    font-family:var(--ui); font-weight:800; font-size:13.5px; padding:10px 20px; border-radius:10px; cursor:pointer}
+  .dbtn.ghost{background:transparent; color:var(--ink-dim); border-color:var(--border); font-weight:700}
+  .dbtn:disabled{opacity:.4; cursor:default}
+  .dprog{margin-left:auto; font-size:11.5px; color:var(--ink-dim); font-variant-numeric:tabular-nums}
+  .dsteps{display:flex; gap:4px}
+  .dsteps i{width:16px; height:3px; border-radius:2px; background:#ffffff2a; transition:background .2s}
+  .dsteps i.on{background:var(--gold)}
+
   .countpanel{display:flex; flex-direction:column; gap:16px}
   .hilo{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px 15px; font-size:13px; line-height:1.6; color:var(--ink)}
   .hilo b{color:var(--gold)} .hilo .cv{font-family:var(--mono); font-weight:700; white-space:nowrap}
@@ -223,7 +319,7 @@
       <span class="sub">Blackjack Trainer</span>
       <h1>ブラックジャック トレーナー</h1>
     </div>
-    <div class="stats">
+    <div class="stats" id="statwrap">
       <div class="stat"><div class="n" id="s-correct">0</div><div class="l">正解</div></div>
       <div class="stat"><div class="n" id="s-total">0</div><div class="l">試行</div></div>
       <div class="stat"><div class="n acc" id="s-acc">—</div><div class="l">正解率</div></div>
@@ -232,11 +328,132 @@
   </header>
 
   <div class="modetabs" id="modetabs">
+    <button data-m="rules" aria-selected="false">ルール<span class="s">遊び方とデモ</span></button>
     <button data-m="strategy" aria-selected="true">ストラテジー<span class="s">正しいプレイを判断</span></button>
     <button data-m="count" aria-selected="false">カウンティング<span class="s">Hi-Lo カウント練習</span></button>
   </div>
 
   <!-- ===================== STRATEGY MODE ===================== -->
+  <div id="mode-rules" class="hidden">
+    <div class="rulepanel">
+
+      <div class="rsec">
+        <h3><span class="num">1</span>ゲームの目的</h3>
+        <p>相手は他のプレイヤーではなく、<b>ディーラー1人</b>です。あなたはディーラーとの一騎打ちで、<b>手札の合計を21に近づけて相手より大きくすれば勝ち</b>。</p>
+        <p>ただし絶対のルールがひとつ。<span class="em">21を超えたらその時点で即負け</span>です（これを<b>バースト</b>と言います）。ディーラーがどうなるかを待つ必要すらありません。だから「21に近づける」ゲームというより、実際は<b>「バーストせずにディーラーより上を取る」</b>ゲームです。</p>
+        <div class="keypt">よくある誤解：<b>21を目指すゲームではありません。</b>ディーラーが先にバーストしてくれれば、あなたは合計12でも勝てます。「引かない勇気」がこのゲームの本質です。</div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">2</span>カードの数え方</h3>
+        <div class="rtwrap"><table class="rtable">
+          <tr><th>カード</th><th>点数</th></tr>
+          <tr><td>2 〜 10</td><td>書いてある数字のまま</td></tr>
+          <tr><td>J・Q・K</td><td>すべて <b>10</b>（絵柄は関係なし）</td></tr>
+          <tr><td>A（エース）</td><td><b>1 または 11</b>、その時に有利な方で自動的に数える</td></tr>
+        </table></div>
+        <p>マーク（♠♥♦♣）は<b>一切関係ありません</b>。数字だけ見ればOKです。</p>
+        <p><b>ソフト / ハード</b>：Aを11として数えている手を<b>ソフト</b>と呼びます。例えば A+6 は「ソフト17」。もう1枚引いて10が来ても、Aを1に数え直せば17のままで<span class="em">バーストしません</span>。一方 10+7 の「ハード17」で引くとバーストの危険があります。同じ17でも安全度がまるで違うので、区別されています。</p>
+        <div class="keypt">この「ソフトなら思い切って引ける」という性質が、後の戦略で効いてきます。</div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">3</span>1ラウンドの流れ</h3>
+        <div class="rtwrap"><table class="rtable">
+          <tr><th>順番</th><th>起きること</th></tr>
+          <tr><td>① ベット</td><td>チップを賭ける</td></tr>
+          <tr><td>② 配札</td><td>あなたに2枚（表向き）、ディーラーに2枚。<b>ディーラーは1枚だけ表</b>、もう1枚は伏せる（ホールカード）</td></tr>
+          <tr><td>③ あなたの番</td><td>ディーラーの見えている1枚を手がかりに、ヒット/スタンド等を選ぶ。<b>納得いくまで引ける</b></td></tr>
+          <tr><td>④ ディーラーの番</td><td>伏せ札を公開し、<b>決まった規則通りに</b>引く</td></tr>
+          <tr><td>⑤ 勝敗</td><td>数字を比べて配当</td></tr>
+        </table></div>
+        <div class="keypt">重要なのは<b>あなたが先に決める</b>という点。先にバーストすれば、ディーラーが後でバーストしても<span class="em">あなたの負けです</span>。この順番の不公平さこそがカジノ側の取り分（ハウスエッジ）の正体です。</div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">4</span>あなたが選べるアクション</h3>
+        <div class="rtwrap"><table class="rtable">
+          <tr><th>アクション</th><th>内容</th></tr>
+          <tr><td>ヒット</td><td>カードを<b>もう1枚引く</b>。21を超えなければ何枚でも続けられる</td></tr>
+          <tr><td>スタンド</td><td><b>引かずに止める</b>。ここであなたの手は確定</td></tr>
+          <tr><td>ダブルダウン</td><td><b>賭け金を倍</b>にして<span class="em">1枚だけ</span>引き、強制的に終了。有利な場面で稼ぐ手</td></tr>
+          <tr><td>スプリット</td><td>同じ数字が2枚（ペア）のとき<b>2つの手に分割</b>。追加で同額を賭け、それぞれ別々にプレイ</td></tr>
+          <tr><td>サレンダー</td><td><b>降参して賭け金の半分を返してもらう</b>。勝ち目が薄い手で損失を抑える。無いテーブルも多い</td></tr>
+        </table></div>
+        <p>ダブルダウン・スプリット・サレンダーは<b>最初の2枚のときだけ</b>選べます。1枚でも引いた後は、ヒットかスタンドのみです。</p>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">5</span>ディーラーには選択権がない</h3>
+        <p>ここがブラックジャック最大の特徴です。ディーラーは<b>機械的な規則に従うだけ</b>で、判断を一切しません。</p>
+        <div class="rtwrap"><table class="rtable">
+          <tr><th>ディーラーの手</th><th>行動</th></tr>
+          <tr><td>16以下</td><td><b>必ず引く</b>（引きたくなくても引く）</td></tr>
+          <tr><td>17以上</td><td><b>必ず止まる</b>（引きたくても引けない）</td></tr>
+          <tr><td>ソフト17</td><td>テーブル次第。<b>S17</b>＝止まる／<b>H17</b>＝引く</td></tr>
+        </table></div>
+        <div class="keypt">ディーラーが規則で固定されている＝<b>結果を計算できる</b>ということ。だから「この手ならこう打つのが最善」が数学的に確定します。それが<b>ベーシックストラテジー</b>です。当てずっぽうではなく、答えのある問題なんです。</div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">6</span>配当</h3>
+        <div class="rtwrap"><table class="rtable">
+          <tr><th>結果</th><th>配当</th></tr>
+          <tr><td>勝ち</td><td><b>1 : 1</b>（賭けた分と同額をもらえる。100円→200円が戻る）</td></tr>
+          <tr><td>ブラックジャック</td><td><b>3 : 2</b>（100円→250円が戻る）※テーブルによっては 6:5 の場合あり</td></tr>
+          <tr><td>引き分け</td><td><b>プッシュ</b>。賭け金がそのまま返ってくる</td></tr>
+          <tr><td>負け・バースト</td><td>賭け金を失う</td></tr>
+        </table></div>
+        <p><b>ブラックジャック（ナチュラル）</b>とは、<b>最初に配られた2枚がAと10札</b>の21のこと。ヒットして作った21とは扱いが違い、こちらだけが1.5倍の配当になります。</p>
+        <div class="keypt"><b>3:2 のテーブルを選んでください。</b>同じゲームに見えて 6:5 のテーブルはハウスエッジが約1.4%も悪化します。ここは初心者でも今日から実行できる、最も効果の大きい選択です。</div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">7</span>インシュランス（保険）</h3>
+        <p>ディーラーの表がAのとき「保険を賭けますか？」と聞かれます。ディーラーがブラックジャックなら払い戻されるという触れ込みです。</p>
+        <div class="keypt"><span class="em">結論：受けないでください。</span>カウンティングをしている人以外にとっては、長期的に必ず損をする賭けです。「保険」という安心感のある名前が付いているだけで、中身は分の悪いサイドベットです。</div>
+      </div>
+
+      <!-- ===== デモンストレーション ===== -->
+      <div class="demo">
+        <div class="demohead">
+          <h3>デモを見る</h3>
+          <button class="dchip" data-demo="0" aria-pressed="true">基本の流れ</button>
+          <button class="dchip" data-demo="1" aria-pressed="false">バースト</button>
+          <button class="dchip" data-demo="2" aria-pressed="false">ブラックジャック</button>
+          <button class="dchip" data-demo="3" aria-pressed="false">ダブルダウン</button>
+          <button class="dchip" data-demo="4" aria-pressed="false">スプリット</button>
+          <button class="dchip" data-demo="5" aria-pressed="false">引かない勇気</button>
+        </div>
+        <div class="demofelt">
+          <div class="dzone">
+            <span class="rlabel">ディーラー</span>
+            <div class="cards" id="d-dealer"></div>
+            <span class="handtag" id="d-dtag">—</span>
+          </div>
+          <div class="dzone">
+            <div class="dhands" id="d-player"></div>
+            <span class="rlabel">あなた</span>
+          </div>
+        </div>
+        <div style="padding:14px 16px 0"><div class="dnote" id="d-note"></div></div>
+        <div class="dbar">
+          <button class="dbtn" id="d-next">次へ ▸</button>
+          <button class="dbtn ghost" id="d-reset">最初から</button>
+          <div class="dsteps" id="d-steps"></div>
+          <span class="dprog" id="d-prog">1 / 1</span>
+        </div>
+      </div>
+
+      <div class="rsec">
+        <h3><span class="num">8</span>次にやること</h3>
+        <p>ルールが分かったら、上のタブから<b>「ストラテジー」</b>へ。実際に手が配られるので、直感ではなく<b>数学的な正解</b>を身につけていきます。間違えても大丈夫で、その場で正しい打ち方と根拠の表が出ます。</p>
+        <p>ベーシックストラテジー通りに打てば、ハウスエッジは<b>約0.5%</b>まで下がります。適当に打つと約2〜3%なので、<b>覚えるだけで損失が数分の1</b>になります。</p>
+      </div>
+
+    </div>
+  </div>
+
   <div id="mode-strategy">
     <div class="rules" style="margin-bottom:8px">
       <div class="presets" id="presets"></div>
@@ -648,7 +865,7 @@ function dealerPhase(){
   settle();
   paintTable();
   renderResults();
-  document.querySelectorAll(".act").forEach(b=>{b.className="act";b.disabled=true;});
+  document.querySelectorAll(".act").forEach(b=>{b.disabled=true;});  // 正誤ハイライトは残す
   document.getElementById("next").disabled=false;
 }
 function settle(){
@@ -892,14 +1109,129 @@ function tagAnswer(v){
 }
 document.querySelectorAll("#tagbtns .tag").forEach(b=>b.addEventListener("click",()=>tagAnswer(+b.dataset.v)));
 
+/* ============ ルール：デモンストレーション ============ */
+function pc(s){                                    // "A♠" → カードオブジェクト
+  const glyph=s.slice(-1), rank=s.slice(0,-1);
+  return{rank,glyph,red:(glyph==="♥"||glyph==="♦")?1:0,
+    v:rank==="A"?11:(["J","Q","K","10"].includes(rank)?10:parseInt(rank,10))};
+}
+function tagOf(cards){
+  const ev=evaluate(cards);
+  if(ev.total>21)return`バースト ${ev.total}`;
+  return`${ev.soft?"ソフト":"ハード"} ${ev.total}`;
+}
+const DEMOS=[
+ {name:"基本の流れ",steps:[
+  {p:[["10♠","4♥"]],d:["7♦","9♣"],hole:true,who:"配札",
+   note:"あなたに2枚、ディーラーに2枚配られます。ディーラーは<b>1枚だけ表向き</b>で、もう1枚は伏せられています。あなたの手は<b>14</b>。ディーラーの見えている札は<b>7</b>です。"},
+  {p:[["10♠","4♥"]],d:["7♦","9♣"],hole:true,who:"あなたの番",
+   note:"伏せ札は見えませんが、10・J・Q・Kのどれかである可能性が高い。もし10札なら<b>ディーラーは17</b>です。<b>14のまま止まれば負け</b>る公算が大きい。だから引きます。"},
+  {p:[["10♠","4♥","5♣"]],d:["7♦","9♣"],hole:true,who:"ヒット",
+   note:"5を引いて<b>19</b>になりました。ここからもう1枚引くと、3以上でバーストします。<b>スタンド</b>して勝負します。"},
+  {p:[["10♠","4♥","5♣"]],d:["7♦","9♣"],hole:false,who:"ディーラーの番",
+   note:"伏せ札を公開。ディーラーは<b>16</b>です。ここでディーラーに選択権はありません。<b>16以下は必ず引く</b>という規則に従います。"},
+  {p:[["10♠","4♥","5♣"]],d:["7♦","9♣","K♥"],hole:false,who:"結果",
+   note:"K を引いて<b>26 — バースト</b>。ディーラーが21を超えたので、<b>あなたの勝ちです</b>。19という数字そのものより、ディーラーを規則で自滅させたことが勝因です。"}
+ ]},
+ {name:"バースト",steps:[
+  {p:[["9♠","7♥"]],d:["10♦","8♣"],hole:true,who:"配札",
+   note:"あなたは<b>16</b>。ディーラーの表は<b>10</b>。これはブラックジャックで<b>最も嫌われる手</b>です。"},
+  {p:[["9♠","7♥"]],d:["10♦","8♣"],hole:true,who:"考えどころ",
+   note:"止まっても、ディーラーが17〜21を作れば負け。引けば<b>6以上でバースト</b>。どちらも分が悪い、いわゆる詰んだ手です。それでも計算上は<b>引く方がマシ</b>なので引きます。"},
+  {p:[["9♠","7♥","8♦"]],d:["10♦","8♣"],hole:true,who:"バースト",
+   note:"8を引いて<b>24</b>。21を超えた瞬間に<span class='em'>即座に負けが確定</span>します。ディーラーが後でバーストしても関係ありません。<b>あなたが先に決める</b>不利さが出た形です。"},
+  {p:[["9♠","7♥","8♦"]],d:["10♦","8♣"],hole:false,who:"教訓",
+   note:"ディーラーは18でした。つまり止まっていても負けでした。<b>正しく打っても負ける時は負けます。</b>戦略は毎回勝つためのものではなく、<b>長期的な損失を最小にする</b>ためのものです。"}
+ ]},
+ {name:"ブラックジャック",steps:[
+  {p:[["A♠","K♥"]],d:["6♦","10♣"],hole:true,who:"配札",ptag:["ブラックジャック！"],
+   note:"最初の2枚が<b>A と 10札</b>。これが<b>ブラックジャック（ナチュラル）</b>です。合計21ですが、ヒットして作った21とは<b>扱いが違います</b>。"},
+  {p:[["A♠","K♥"]],d:["6♦","10♣"],hole:true,who:"配当",ptag:["ブラックジャック！"],
+   note:"配当は<b>3 : 2</b>。100円賭けていれば<b>150円の利益</b>（250円が戻る）。通常の勝ちは1:1で100円の利益なので、<b>1.5倍おいしい</b>ことになります。"},
+  {p:[["A♠","K♥"]],d:["6♦","10♣"],hole:false,who:"結果",ptag:["ブラックジャック！"],
+   note:"ディーラーは16。ディーラーもブラックジャックだった場合のみ引き分けですが、今回は違うので<b>あなたの勝ち</b>です。<br><b>注意：</b>テーブルによっては配当が <b>6:5</b> のことがあります。同じ手でも100円→120円の利益に減るので、<span class='em'>3:2 のテーブルを選んでください</span>。"}
+ ]},
+ {name:"ダブルダウン",steps:[
+  {p:[["6♠","5♥"]],d:["5♦","9♣"],hole:true,who:"配札",
+   note:"あなたは<b>11</b>。次に10札が来れば21になる、<b>最高に伸びしろのある手</b>です。しかもディーラーの表は<b>5</b>で弱い。"},
+  {p:[["6♠","5♥"]],d:["5♦","9♣"],hole:true,who:"ダブルダウン",
+   note:"こういう<b>自分が有利な場面で賭け金を増やす</b>のがダブルダウン。賭け金を<b>2倍</b>にする代わりに、引けるのは<span class='em'>1枚だけ</span>で強制終了です。"},
+  {p:[["6♠","5♥","Q♣"]],d:["5♦","9♣"],hole:true,who:"1枚引く",
+   note:"Q を引いて<b>21</b>。ここで強制的に打ち止めですが、もとより引く必要はありません。"},
+  {p:[["6♠","5♥","Q♣"]],d:["5♦","9♣","8♥"],hole:false,who:"結果",
+   note:"ディーラーは14 → 規則で引いて<b>22でバースト</b>。<b>2倍の賭け金で勝ちました</b>。ダブルダウンは、勝てる場面を見つけて<b>取り返しに行く</b>ための武器です。"}
+ ]},
+ {name:"スプリット",steps:[
+  {p:[["8♠","8♥"]],d:["6♦","10♣"],hole:true,who:"配札",
+   note:"合計<b>16</b>。そのまま戦うには最悪の数字です。しかし<b>同じ数字が2枚（ペア）</b>なので、別の選択肢があります。"},
+  {p:[["8♠"],["8♥"]],d:["6♦","10♣"],hole:true,active:0,ptag:["",""],who:"スプリット",
+   note:"<b>スプリット</b>：同額を追加で賭けて、<b>2つの独立した手に分割</b>します。弱い16を1つ抱えるのではなく、<b>有望な8を2つ</b>持つ形に組み替えるわけです。"},
+  {p:[["8♠","3♣"],["8♥","10♦"]],d:["6♦","10♣"],hole:true,active:0,who:"それぞれに配られる",
+   note:"分けた各手に1枚ずつ配られます。左は<b>11</b>、右は<b>18</b>。ここからは<b>別々の手として順番にプレイ</b>します。"},
+  {p:[["8♠","3♣","K♠"],["8♥","10♦"]],d:["6♦","10♣"],hole:true,active:1,who:"左の手：ヒット",
+   note:"左の11はKを引いて<b>21</b>。次に右の手へ移ります。右は18なので<b>スタンド</b>します。"},
+  {p:[["8♠","3♣","K♠"],["8♥","10♦"]],d:["6♦","10♣","9♥"],hole:false,who:"結果",
+   note:"ディーラーは16 → 引いて<b>25でバースト</b>。<b>2つの手が両方とも勝ち</b>ました。16のまま1つで戦っていたら、勝っても1つ分です。<b>8,8 は常にスプリット</b>が正解と覚えてください。"}
+ ]},
+ {name:"引かない勇気",steps:[
+  {p:[["10♠","2♥"]],d:["4♦","10♣"],hole:true,who:"配札",
+   note:"あなたは<b>12</b>。低いので「引きたい」と感じるはずです。実際、多くの初心者はここで引きます。"},
+  {p:[["10♠","2♥"]],d:["4♦","10♣"],hole:true,who:"考えどころ",
+   note:"でもディーラーの表は<b>4</b>。これは<b>ディーラーが最も弱い</b>札のひとつです。なぜなら、ディーラーは<b>16以下なら必ず引かされる</b>から。4スタートは高確率でバーストします。"},
+  {p:[["10♠","2♥"]],d:["4♦","10♣"],hole:true,who:"スタンド",
+   note:"だから<b>あえて止まります</b>。自分が強い手を作りに行くのではなく、<b>相手が自滅するのを待つ</b>。12で止まるのは怖いですが、これが計算上の正解です。"},
+  {p:[["10♠","2♥"]],d:["4♦","10♣"],hole:false,who:"ディーラーの番",
+   note:"伏せ札は10。ディーラーは<b>14</b>です。17未満なので、<span class='em'>引きたくなくても引かなければなりません</span>。"},
+  {p:[["10♠","2♥"]],d:["4♦","10♣","K♦"],hole:false,who:"結果",
+   note:"K を引いて<b>24でバースト</b>。<b>12のまま何もせずに勝ちました。</b><br>これがブラックジャックの本質です。<b>自分が21に近づくゲームではなく、ディーラーを自滅させるゲーム。</b>「引かない勇気」を持てるかどうかが、初心者と経験者を分けます。"}
+ ]}
+];
+let dIdx=0,dStep=0;
+function renderDemo(){
+  const demo=DEMOS[dIdx],st=demo.steps[dStep];
+  const dc=el("d-dealer");dc.innerHTML="";
+  st.d.forEach((c,i)=>{
+    if(st.hole&&i===1){const b=cardEl(pc(c),"deal");b.classList.add("back");b.innerHTML="";dc.appendChild(b);}
+    else dc.appendChild(cardEl(pc(c),"deal"));
+  });
+  el("d-dtag").textContent=st.hole?pc(st.d[0]).rank:tagOf(st.d.map(pc));
+  const ph=el("d-player");ph.innerHTML="";
+  st.p.forEach((hand,i)=>{
+    const w=document.createElement("div");
+    w.className="dhand"+(st.p.length>1&&st.active===i?" on":"");
+    const cd=document.createElement("div");cd.className="cards";
+    hand.forEach(c=>cd.appendChild(cardEl(pc(c),"deal")));
+    w.appendChild(cd);
+    const t=document.createElement("span");t.className="handtag";
+    const ov=st.ptag&&st.ptag[i];
+    t.textContent=ov!==undefined&&ov!==""?ov:tagOf(hand.map(pc));
+    w.appendChild(t);
+    ph.appendChild(w);
+  });
+  el("d-note").innerHTML=`<span class="who">${st.who}</span>${st.note}`;
+  const last=dStep>=demo.steps.length-1;
+  const nb=el("d-next");nb.disabled=last;nb.textContent=last?"完了":"次へ ▸";
+  el("d-prog").textContent=`${dStep+1} / ${demo.steps.length}`;
+  const ind=el("d-steps");ind.innerHTML="";
+  demo.steps.forEach((_,i)=>{const s=document.createElement("i");if(i<=dStep)s.className="on";ind.appendChild(s);});
+  document.querySelectorAll(".dchip").forEach(b=>b.setAttribute("aria-pressed",String(+b.dataset.demo===dIdx)));
+}
+function setDemo(i){dIdx=i;dStep=0;renderDemo();}
+el("d-next").addEventListener("click",()=>{if(dStep<DEMOS[dIdx].steps.length-1){dStep++;renderDemo();}});
+el("d-reset").addEventListener("click",()=>{dStep=0;renderDemo();});
+document.querySelectorAll(".dchip").forEach(b=>b.addEventListener("click",()=>setDemo(+b.dataset.demo)));
+
 /* ============ MODE SWITCH ============ */
 function setMode(m){
   mode=m;
   document.querySelectorAll("#modetabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.m===m)));
+  el("mode-rules").classList.toggle("hidden",m!=="rules");
   el("mode-strategy").classList.toggle("hidden",m!=="strategy");
   el("mode-count").classList.toggle("hidden",m!=="count");
-  updateStats();
+  const sw=document.getElementById("statwrap"); if(sw)sw.style.display=(m==="rules")?"none":"";
+  if(m!=="rules")updateStats();
   if(m==="count")setCountUI();
+  if(m==="rules")renderDemo();
 }
 document.querySelectorAll("#modetabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.m)));
 
