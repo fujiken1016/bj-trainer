@@ -1,0 +1,946 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ブラックジャック トレーナー — 戦略 & カウンティング</title>
+<style>
+  :root{
+    --felt:#123a2e; --felt-2:#0d2c22; --felt-line:#1c5240; --felt-hi:#1a5241;
+    --ivory:#f4efe3; --card-ink:#20201d; --card-red:#b23b34;
+    --ink:#eae5d6; --ink-dim:#a7b3a4;
+    --gold:#cba24c; --gold-dim:#8f7a3c;
+    --good:#3f9b5b; --good-hi:#5ec37e;
+    --bad:#c6493b; --bad-hi:#e07567;
+    --cell-h:#2f7d5b; --cell-s:#b1463a; --cell-d:#c99a3c; --cell-p:#6f5aa6; --cell-r:#5f6b6a;
+    --panel:#16473818; --border:#ffffff1f;
+    --shadow:0 10px 30px #00000055;
+    --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;
+    --ui:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0}
+  .app{
+    min-height:100vh;
+    background:radial-gradient(120% 90% at 50% -10%, #1a5241 0%, var(--felt) 42%, var(--felt-2) 100%);
+    color:var(--ink); font-family:var(--ui); padding:22px 16px 60px;
+    display:flex; flex-direction:column; align-items:center; gap:18px;
+  }
+  .wrap{width:100%; max-width:760px; display:flex; flex-direction:column; gap:18px}
+
+  header.hd{display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap}
+  .title{display:flex; flex-direction:column; gap:2px}
+  .title h1{font-family:var(--serif); font-weight:600; margin:0; font-size:clamp(20px,3.4vw,28px); letter-spacing:.3px; color:#f6f1e2}
+  .title .sub{font-size:11px; letter-spacing:.18em; text-transform:uppercase; color:var(--gold)}
+  .stats{display:flex; gap:8px}
+  .stat{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:7px 12px; text-align:center; min-width:58px}
+  .stat .n{font-family:var(--serif); font-size:20px; font-variant-numeric:tabular-nums; color:#f6f1e2; line-height:1}
+  .stat .l{font-size:9.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-dim); margin-top:4px}
+  .stat .n.acc{color:var(--gold)}
+
+  /* mode tabs */
+  .modetabs{display:flex; gap:8px; background:#00000026; border:1px solid var(--border); border-radius:12px; padding:5px}
+  .modetabs button{flex:1; appearance:none; border:0; background:transparent; color:var(--ink-dim); font-family:var(--ui); font-weight:700; font-size:14px; padding:10px; border-radius:8px; cursor:pointer; transition:background .15s,color .15s}
+  .modetabs button[aria-selected="true"]{background:var(--gold); color:#241f10}
+  .modetabs button .s{display:block; font-size:10px; font-weight:600; letter-spacing:.04em; opacity:.8; margin-top:2px}
+
+  /* rules bar */
+  .rules{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:11px 13px; display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center}
+  .rgroup{display:flex; align-items:center; gap:7px}
+  .rgroup > .lab{font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim); display:inline-flex; align-items:center; gap:1px}
+  .info{position:relative; appearance:none; padding:0; margin-left:3px; width:15px; height:15px; flex:0 0 auto;
+    border:1px solid var(--border); background:#ffffff14; color:var(--ink-dim); border-radius:50%;
+    font-family:var(--ui); font-size:10px; font-weight:700; line-height:1; cursor:pointer; transition:background .15s,color .15s}
+  .info:hover,.info:focus-visible,.info.open{background:var(--gold); color:#241f10; border-color:var(--gold); outline:none}
+  .info .tip{display:none; position:absolute; left:50%; top:calc(100% + 9px); transform:translateX(-50%);
+    width:min(300px,74vw); background:#0b241c; border:1px solid var(--gold-dim); border-radius:10px; padding:10px 12px;
+    font-size:11.5px; font-weight:500; line-height:1.65; color:var(--ink); text-align:left; text-transform:none;
+    letter-spacing:0; white-space:normal; z-index:60; box-shadow:0 10px 26px #000000a0}
+  .info .tip::before{content:""; position:absolute; left:calc(50% + var(--arrow-dx,0px)); top:-5px; transform:translateX(-50%) rotate(45deg);
+    width:8px; height:8px; background:#0b241c; border-left:1px solid var(--gold-dim); border-top:1px solid var(--gold-dim)}
+  .info:hover .tip,.info:focus-visible .tip,.info.open .tip{display:block}
+  .info .tip b{color:var(--gold)}
+  .seg{display:inline-flex; background:#0000002e; border:1px solid var(--border); border-radius:9px; overflow:hidden}
+  .seg button{appearance:none; border:0; background:transparent; color:var(--ink-dim); font-family:var(--ui); font-size:12px; font-weight:600; padding:6px 10px; cursor:pointer; transition:background .15s,color .15s}
+  .seg button[aria-pressed="true"]{background:var(--gold); color:#241f10}
+  .seg button:hover:not([aria-pressed="true"]){color:var(--ink)}
+  .fbnote{display:none; font-size:12px; line-height:1.55; color:var(--ink-dim); background:#cba24c14; border:1px solid #cba24c44; border-radius:12px; padding:10px 14px}
+  .fbnote b{color:var(--gold)}
+  .presets{display:flex; gap:7px; flex-wrap:wrap; width:100%}
+  .preset{appearance:none; cursor:pointer; font-family:var(--ui); font-size:11.5px; font-weight:600; color:var(--ink); background:#ffffff14; border:1px solid var(--border); border-radius:20px; padding:5px 12px; transition:background .15s,border-color .15s}
+  .preset:hover{background:#ffffff26; border-color:var(--gold-dim)}
+
+  /* felt casino table (vertical) */
+  .felt{
+    background:radial-gradient(120% 130% at 50% 0%, var(--felt-hi) 0%, var(--felt) 55%, var(--felt-2) 100%);
+    border:1px solid var(--felt-line); border-radius:22px; box-shadow:var(--shadow);
+    padding:20px 18px 22px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; align-items:center; gap:6px;
+  }
+  .zone{display:flex; flex-direction:column; align-items:center; gap:8px; width:100%; z-index:1}
+  .rlabel{font-size:10.5px; letter-spacing:.18em; text-transform:uppercase; color:var(--ink-dim)}
+  .table-mid{position:relative; width:100%; height:60px; display:flex; align-items:center; justify-content:center; margin:2px 0}
+  .table-mid::before{content:""; position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:150%; height:200px; border-bottom:2px solid #ffffff14; border-radius:50%; box-shadow:0 2px 0 #00000030}
+  .table-mid .arc{font-family:var(--serif); font-style:italic; letter-spacing:.28em; font-size:11px; color:#ffffff2e; text-transform:uppercase}
+  .cards{display:flex; min-height:92px; align-items:center}
+  .cards .card:not(:first-child){margin-left:-24px}
+  .handtag{font-family:var(--serif); font-size:15px; color:#f2ecdc; background:#00000030; border:1px solid var(--border); padding:3px 12px; border-radius:20px}
+  .phands{display:flex; gap:12px; flex-wrap:wrap; justify-content:center; width:100%}
+  .phand{display:flex; flex-direction:column; align-items:center; gap:7px; padding:8px 10px; border-radius:14px;
+    border:1px solid transparent; transition:border-color .15s, background .15s}
+  .phand.active{border-color:var(--gold); background:#cba24c14; box-shadow:0 0 0 1px #cba24c33}
+  .phands.multi .card{width:48px; height:68px}
+  .phands.multi .card .rk{font-size:13px; top:4px; left:5px}
+  .phands.multi .card .mid{font-size:22px}
+  .phands.multi .card .st{font-size:12px; bottom:3px; right:5px}
+  .phands.multi .cards .card:not(:first-child){margin-left:-18px}
+  .phands.multi .handtag{font-size:12.5px; padding:2px 9px}
+  .rbadge{font-size:10.5px; font-weight:800; letter-spacing:.1em; padding:3px 11px; border-radius:20px}
+  .rbadge.win{background:var(--good); color:#eafff0}
+  .rbadge.lose{background:var(--bad); color:#fff0ee}
+  .rbadge.push{background:#5f6b6a; color:#f0f2f0}
+  .rbadge.surr{background:#4a5250; color:#d8ddda}
+  .r-win{color:var(--good-hi)} .r-lose{color:var(--bad-hi)} .r-push,.r-surr{color:var(--ink-dim)}
+
+  .card{width:62px; height:88px; border-radius:8px; background:linear-gradient(150deg,#fbf8f0,#ede5d3); color:var(--card-ink); box-shadow:0 6px 14px #0006, inset 0 0 0 1px #ffffffcc; position:relative; font-family:var(--serif); flex:0 0 auto}
+  .card .rk{position:absolute; top:5px; left:7px; font-size:16px; font-weight:600; line-height:1}
+  .card .st{position:absolute; bottom:4px; right:7px; font-size:15px}
+  .card .mid{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:29px}
+  .card.red{color:var(--card-red)}
+  .card.back{background:repeating-linear-gradient(45deg,#7a2b28,#7a2b28 6px,#8f3a36 6px,#8f3a36 12px); box-shadow:0 6px 14px #0006, inset 0 0 0 1px #ffffff44, inset 0 0 0 4px #b9524d}
+  .card.big{width:96px; height:136px}
+  .card.big .rk{font-size:24px; top:8px; left:11px}
+  .card.big .mid{font-size:48px}
+  .card.big .st{font-size:22px; bottom:7px; right:11px}
+  @media (prefers-reduced-motion:no-preference){
+    .deal{animation:deal .3s cubic-bezier(.2,.8,.3,1) both}
+    @keyframes deal{from{opacity:0; transform:translateY(-12px) rotate(-4deg)} to{opacity:1; transform:none}}
+    .pop{animation:pop .18s ease both}
+    @keyframes pop{from{opacity:0; transform:scale(.9)} to{opacity:1; transform:none}}
+  }
+
+  .actions{display:flex; gap:9px; flex-wrap:wrap; justify-content:center; margin-top:12px}
+  .act{appearance:none; cursor:pointer; font-family:var(--ui); font-weight:700; font-size:13.5px; color:#f4efe3; background:#ffffff16; border:1px solid var(--border); border-radius:12px; padding:11px 15px; min-width:96px; transition:transform .1s, background .15s, border-color .15s, opacity .15s}
+  .act .key{display:block; font-size:9px; letter-spacing:.16em; color:var(--ink-dim); margin-top:3px; font-weight:600}
+  .act:hover:not(:disabled){background:#ffffff2b; border-color:var(--gold-dim)}
+  .act:active:not(:disabled){transform:translateY(1px)}
+  .act:disabled{opacity:.32; cursor:not-allowed}
+  .act.correct{background:var(--good); border-color:var(--good-hi); color:#eafff0}
+  .act.wrong{background:var(--bad); border-color:var(--bad-hi); color:#fff0ee}
+  .act.reveal{outline:2px solid var(--good-hi); outline-offset:2px}
+
+  .feedback{min-height:24px; text-align:center; font-size:14px; display:flex; flex-direction:column; gap:4px; align-items:center; margin-top:12px}
+  .feedback .verdict{font-family:var(--serif); font-size:19px}
+  .feedback .verdict.ok{color:var(--good-hi)}
+  .feedback .verdict.no{color:var(--bad-hi)}
+  .feedback .detail{color:var(--ink-dim); font-size:13px}
+  .feedback .detail b{color:var(--gold)}
+
+  /* situation-only strategy strip */
+  .situation{display:none; flex-direction:column; align-items:center; gap:7px; margin-top:6px}
+  .situation.show{display:flex}
+  .situation .cap{font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold)}
+  table.sc{border-collapse:separate; border-spacing:3px; font-variant-numeric:tabular-nums}
+  table.sc th, table.sc td{width:30px; height:26px; text-align:center; font-size:12px; font-weight:700; border-radius:5px; color:#f4efe3}
+  table.sc th{color:var(--ink-dim); font-weight:600; background:transparent; font-size:11px}
+  table.sc td[data-a="H"]{background:var(--cell-h)} table.sc td[data-a="S"]{background:var(--cell-s)}
+  table.sc td[data-a="D"]{background:var(--cell-d); color:#241f10} table.sc td[data-a="P"]{background:var(--cell-p)}
+  table.sc td[data-a="R"]{background:var(--cell-r)}
+  table.sc td.hl{outline:3px solid #fff; outline-offset:-1px; box-shadow:0 0 0 2px #000, 0 0 12px #ffffffaa}
+  .minilegend{display:flex; gap:10px; flex-wrap:wrap; font-size:10.5px; color:var(--ink-dim); justify-content:center}
+  .minilegend i{width:11px; height:11px; border-radius:3px; display:inline-block; vertical-align:-1px; margin-right:4px}
+  .situation .cap b{color:#f6f1e2}
+  .situation .scwrap{overflow-x:auto; max-width:100%; padding:2px 0}
+
+  /* mistake review */
+  .review{background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:12px 14px; margin-top:18px; display:flex; flex-direction:column; gap:10px}
+  .rev-head{display:flex; justify-content:space-between; align-items:center; font-size:13px; color:#f2ecdc; font-weight:600; gap:10px; flex-wrap:wrap}
+  .rev-head b{color:var(--bad-hi); font-variant-numeric:tabular-nums}
+  .rev-clear{appearance:none; cursor:pointer; font-size:11px; color:var(--ink-dim); background:#ffffff12; border:1px solid var(--border); border-radius:16px; padding:5px 12px}
+  .rev-clear:hover{color:var(--ink)}
+  .rev-list{display:flex; flex-direction:column; gap:7px}
+  .rev-empty{font-size:12px; color:var(--ink-dim); text-align:center; padding:8px}
+  .rev-item{display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:#00000026; border:1px solid var(--border); border-radius:10px; padding:8px 11px; font-size:12.5px}
+  .rev-item.done{opacity:.5}
+  .rev-hand{font-family:var(--serif); color:#f2ecdc; min-width:120px}
+  .rev-ans{color:var(--ink-dim); margin-right:auto}
+  .rev-ans b.no{color:var(--bad-hi)} .rev-ans b.ok{color:var(--good-hi)}
+  .rev-ctx{font-size:10.5px; color:var(--ink-dim); font-family:var(--mono)}
+  .rev-retry{appearance:none; cursor:pointer; font-size:11.5px; font-weight:700; color:#241f10; background:var(--gold); border:0; border-radius:16px; padding:6px 14px}
+  .rev-retry:hover{filter:brightness(1.07)}
+  .rev-retry:disabled{background:#3f9b5b; color:#eafff0; cursor:default}
+
+  .nextbar{display:flex; justify-content:center; margin-top:10px}
+  .next{appearance:none; cursor:pointer; font-family:var(--ui); font-weight:700; font-size:14px; color:#241f10; background:var(--gold); border:0; border-radius:12px; padding:11px 26px; transition:filter .15s, opacity .15s}
+  .next:hover{filter:brightness(1.07)} .next:disabled{opacity:.4; cursor:default}
+
+  details.full{background:var(--panel); border:1px solid var(--border); border-radius:14px; overflow:hidden}
+  details.full summary{cursor:pointer; list-style:none; padding:12px 15px; font-weight:600; font-size:13px; color:#f2ecdc; display:flex; justify-content:space-between}
+  details.full summary::-webkit-details-marker{display:none}
+  details.full summary .hint{font-size:11px; color:var(--ink-dim); font-weight:500}
+  .fullbody{padding:4px 14px 16px; overflow-x:auto}
+  .fullcols{display:flex; flex-direction:column; gap:14px}
+  .ctitle{font-size:10.5px; letter-spacing:.12em; text-transform:uppercase; color:var(--gold); margin:2px 0 6px}
+
+  /* counting mode */
+  .hidden{display:none !important}
+  .countpanel{display:flex; flex-direction:column; gap:16px}
+  .hilo{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:12px 15px; font-size:13px; line-height:1.6; color:var(--ink)}
+  .hilo b{color:var(--gold)} .hilo .cv{font-family:var(--mono); font-weight:700; white-space:nowrap}
+  .subtabs{display:flex; gap:7px}
+  .subtabs button{flex:1; appearance:none; border:1px solid var(--border); background:#00000026; color:var(--ink-dim); font-family:var(--ui); font-weight:700; font-size:13px; padding:9px; border-radius:10px; cursor:pointer}
+  .subtabs button[aria-selected="true"]{background:var(--felt-hi); color:#f4efe3; border-color:var(--gold-dim)}
+  .cControls{display:flex; flex-wrap:wrap; gap:12px 18px; align-items:center; background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:11px 14px}
+  .cControls label{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-dim); display:flex; align-items:center; gap:8px}
+  .cControls input[type=range]{accent-color:var(--gold)}
+  .cControls .val{font-family:var(--mono); color:var(--gold); font-size:12px; min-width:34px}
+  .chk{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink); text-transform:none; letter-spacing:0}
+
+  .fl0area{background:radial-gradient(120% 130% at 50% 0%, var(--felt-hi), var(--felt-2)); border:1px solid var(--felt-line); border-radius:20px; box-shadow:var(--shadow); min-height:210px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:22px}
+  .flashcards{min-height:140px; display:flex; align-items:center; justify-content:center}
+  .progress{font-size:12px; color:var(--ink-dim); font-variant-numeric:tabular-nums; letter-spacing:.05em}
+  .tagbtns{display:flex; gap:10px; justify-content:center}
+  .tag{appearance:none; cursor:pointer; font-family:var(--serif); font-weight:600; font-size:20px; color:#f4efe3; background:#ffffff16; border:1px solid var(--border); border-radius:12px; width:78px; padding:12px 0; transition:background .12s, transform .1s}
+  .tag .k{display:block; font-family:var(--ui); font-size:9px; letter-spacing:.14em; color:var(--ink-dim); margin-top:2px}
+  .tag:hover:not(:disabled){background:#ffffff2b} .tag:active:not(:disabled){transform:translateY(1px)} .tag:disabled{opacity:.35}
+  .tag.correct{background:var(--good); color:#eafff0} .tag.wrong{background:var(--bad); color:#fff0ee}
+  .countinput{display:flex; gap:8px; align-items:center; justify-content:center}
+  .countinput input{width:88px; font-family:var(--mono); font-size:20px; text-align:center; padding:8px; border-radius:10px; border:1px solid var(--border); background:#00000040; color:#f6f1e2}
+  .countinput input:focus{outline:2px solid var(--gold)}
+  .btn{appearance:none; cursor:pointer; font-family:var(--ui); font-weight:700; font-size:14px; border:0; border-radius:12px; padding:11px 22px}
+  .btn.gold{background:var(--gold); color:#241f10} .btn.gold:hover{filter:brightness(1.07)}
+  .btn.ghost{background:#ffffff16; color:#f4efe3; border:1px solid var(--border)} .btn.ghost:hover{background:#ffffff2b}
+  .btn:disabled{opacity:.4; cursor:default}
+  .cfeed{min-height:24px; text-align:center; font-size:14px; color:var(--ink-dim)}
+  .cfeed .verdict{font-family:var(--serif); font-size:18px} .cfeed .ok{color:var(--good-hi)} .cfeed .no{color:var(--bad-hi)}
+  .cfeed b{color:var(--gold)}
+  .cactions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
+  .foot{font-size:11px; color:var(--ink-dim); text-align:center}
+</style>
+
+<div class="app"><div class="wrap">
+
+  <header class="hd">
+    <div class="title">
+      <span class="sub">Blackjack Trainer</span>
+      <h1>ブラックジャック トレーナー</h1>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="n" id="s-correct">0</div><div class="l">正解</div></div>
+      <div class="stat"><div class="n" id="s-total">0</div><div class="l">試行</div></div>
+      <div class="stat"><div class="n acc" id="s-acc">—</div><div class="l">正解率</div></div>
+      <div class="stat"><div class="n" id="s-streak">0</div><div class="l">連続</div></div>
+    </div>
+  </header>
+
+  <div class="modetabs" id="modetabs">
+    <button data-m="strategy" aria-selected="true">ストラテジー<span class="s">正しいプレイを判断</span></button>
+    <button data-m="count" aria-selected="false">カウンティング<span class="s">Hi-Lo カウント練習</span></button>
+  </div>
+
+  <!-- ===================== STRATEGY MODE ===================== -->
+  <div id="mode-strategy">
+    <div class="rules" style="margin-bottom:8px">
+      <div class="presets" id="presets"></div>
+      <div class="rgroup"><span class="lab">ゲーム<button class="info" type="button" aria-label="ゲームの説明">i<span class="tip"><b>どのブラックジャックか。</b><br><b>クラシック</b>＝通常のブラックジャック。<br><b>Free Bet</b>＝ダブル/スプリットの追加分を<u>カジノが負担</u>する変種。9/10/11のダブルと10以外の全ペアのスプリットが「タダ」。代わりに<b>ディーラー22はプッシュ（引き分け）</b>。</span></button></span><div class="seg" id="seg-variant"><button data-v="classic">クラシック</button><button data-v="freebet">Free Bet</button></div></div>
+      <div class="rgroup"><span class="lab">ソフト17<button class="info" type="button" aria-label="ソフト17の説明">i<span class="tip"><b>ソフト17</b>＝Aを11と数えた17（例 <b>A＋6</b>）。もう1枚引いてもバーストしない。<br><b>S17</b>＝ディーラーはそこで止まる（プレイヤー有利）。<br><b>H17</b>＝もう1枚引く（不利・約<b>+0.22%</b>ハウス寄り）。</span></button></span><div class="seg" id="seg-s17"><button data-v="S17">S17</button><button data-v="H17">H17</button></div></div>
+      <div class="rgroup"><span class="lab">ダブル<button class="info" type="button" aria-label="ダブルの説明">i<span class="tip"><b>ダブルダウンできる条件。</b>賭け金を倍にして<u>1枚だけ</u>引く。<br><b>自由</b>＝任意の2枚で可。<br><b>9以上</b>＝ハード9・10・11のみ（ソフトのダブル不可）。<br><b>10以上</b>＝10・11のみ。<br>制限が強いほどハウス寄り（最大約+0.2%）。</span></button></span><div class="seg" id="seg-dbl"><button data-v="any">自由</button><button data-v="9-11">9以上</button><button data-v="10-11">10以上</button></div></div>
+      <div class="rgroup"><span class="lab">サレンダー<button class="info" type="button" aria-label="サレンダーの説明">i<span class="tip"><b>降参して賭け金の半分を返してもらう</b>ルール。<br><b>なし</b>＝不可。<br><b>レイト</b>＝ディーラーのBJ確認<u>後</u>に降参（標準・約+0.08%有利）。<br><b>アーリー</b>＝確認<u>前</u>に降参できる。激レアだが約<b>+0.6%</b>と大幅有利で、10・A相手に広く降りる。</span></button></span><div class="seg" id="seg-sur"><button data-v="none">なし</button><button data-v="late">レイト</button><button data-v="early">アーリー</button></div></div>
+      <div class="rgroup"><span class="lab">DAS<button class="info" type="button" aria-label="DASの説明">i<span class="tip"><b>DAS＝Double After Split</b>。スプリットした後の手にダブルできるか。<br>例: <b>8,8</b>を分けて片方に3が来て<b>11</b>→ここでダブル可能か。<br><b>あり</b>で約<b>+0.14%</b>有利。<br><b>なし</b>だとスプリットを控える（<b>4,4は割らない</b>／2,2・3,3は4〜7のみ／6,6は3〜6のみ）。</span></button></span><div class="seg" id="seg-das"><button data-v="on">あり</button><button data-v="off">なし</button></div></div>
+      <div class="rgroup"><span class="lab">デッキ<button class="info" type="button" aria-label="デッキ数の説明">i<span class="tip"><b>使用デッキ数。</b>少ないほどプレイヤー有利（1→8で約+0.5%ハウス寄り）。<br><b>4-8</b>は戦略表が同じ。<br><b>1・2デッキ</b>はカード除去の影響が強く一部のマスが変わる（例: 1デッキは<b>11 vs A もダブル</b>、hard8 vs5,6もダブル、7,7 vs10はスタンド）。</span></button></span><div class="seg" id="seg-deck"><button data-v="1">1</button><button data-v="2">2</button><button data-v="6">4-8</button></div></div>
+      <div class="rgroup"><span class="lab">ホールカード<button class="info" type="button" aria-label="ホールカードの説明">i<span class="tip"><b>ディーラーの伏せ札の扱い。</b>ディーラーがBJの時、<u>ダブル/スプリットの追加分まで取られるか</u>が変わる。<br><b>ピーク</b>＝先にBJを確認。損は元ベットのみ（標準）。<br><b>ENHC</b>＝伏せ札なし。ディーラーBJだと<b>追加分も全没収</b>→<b>10・Aにダブル/スプリットしない</b>（11vs10/Aはヒット、8,8vsAはヒット）。<br><b>OBO</b>＝伏せ札なしだが追加分は返却されるので、<b>戦略はピークと同じ</b>。</span></button></span><div class="seg" id="seg-hole"><button data-v="peek">ピーク</button><button data-v="enhc">ENHC</button><button data-v="obo">OBO</button></div></div>
+    </div>
+    <div class="fbnote" id="fbnote" style="margin-bottom:18px">Free Bet（6デッキ・H17・Push22 固定／Wizard of Odds 実ベット表準拠）：フリーダブル<b>9/10/11</b>とフリースプリット<b>10以外の全ペア</b>は常に実行（<b>5,5はダブル・10,10はスタンド</b>）。ソフトは<b>A,2〜A,4は常にヒット</b>。ディーラー22はプッシュ。<b>サレンダー</b>はテーブル次第なので左のトグルで切替可。他トグルは無効。</div>
+    <div style="height:10px"></div>
+
+    <div class="felt">
+      <div class="zone">
+        <span class="rlabel">ディーラー</span>
+        <div class="cards" id="dealer-cards"></div>
+        <span class="handtag" id="dealer-total">—</span>
+      </div>
+      <div class="table-mid"><span class="arc">Blackjack pays 3 to 2</span></div>
+      <div class="zone">
+        <div class="phands" id="player-hands"></div>
+        <span class="rlabel">あなた</span>
+      </div>
+    </div>
+
+    <div class="actions" id="actions">
+      <button class="act" data-a="hit">ヒット<span class="key">H</span></button>
+      <button class="act" data-a="stand">スタンド<span class="key">S</span></button>
+      <button class="act" data-a="double">ダブル<span class="key">D</span></button>
+      <button class="act" data-a="split">スプリット<span class="key">P</span></button>
+      <button class="act" data-a="surrender">サレンダー<span class="key">R</span></button>
+    </div>
+
+    <div class="feedback" id="feedback"><span class="detail">アクションを選択（キーボード H / S / D / P / R も可）</span></div>
+
+    <div class="situation" id="situation"></div>
+
+    <div class="nextbar"><button class="next" id="next" disabled>次のラウンド ▸ <span style="font-size:10px">(N)</span></button></div>
+
+    <details class="full" id="fullchart" style="margin-top:18px">
+      <summary><span>全戦略表を見る（参考）</span><span class="hint">通常はハンドごとの表だけ表示されます</span></summary>
+      <div class="fullbody">
+        <div class="minilegend" style="padding:6px 0 12px">
+          <span><i style="background:var(--cell-h)"></i>ヒット</span><span><i style="background:var(--cell-s)"></i>スタンド</span>
+          <span><i style="background:var(--cell-d)"></i>ダブル</span><span><i style="background:var(--cell-p)"></i>スプリット</span>
+          <span><i style="background:var(--cell-r)"></i>サレンダー</span>
+        </div>
+        <div class="fullcols">
+          <div><div class="ctitle">ハード</div><div id="tbl-hard"></div></div>
+          <div><div class="ctitle">ソフト（A含む）</div><div id="tbl-soft"></div></div>
+          <div><div class="ctitle">ペア</div><div id="tbl-pair"></div></div>
+        </div>
+      </div>
+    </details>
+
+    <div class="review" id="review">
+      <div class="rev-head">
+        <span>間違いの振り返り — 未克服 <b id="rev-unresolved">0</b> / 累計 <span id="rev-count">0</span> 件</span>
+        <button class="rev-clear" id="rev-clear">クリア</button>
+      </div>
+      <div class="rev-list" id="rev-list"></div>
+    </div>
+  </div>
+
+  <!-- ===================== COUNTING MODE ===================== -->
+  <div id="mode-count" class="hidden">
+    <div class="countpanel">
+      <div class="hilo">
+        <b>Hi-Lo カウンティング</b> — カードごとに数を足し引きし、場に残る高札/低札の偏りを読む手法。<br>
+        <span class="cv" style="color:var(--good-hi)">2・3・4・5・6 = +1</span> ／ <span class="cv">7・8・9 = 0</span> ／ <span class="cv" style="color:var(--bad-hi)">10・J・Q・K・A = −1</span><br>
+        <span style="color:var(--ink-dim)">合計（ランニングカウント）が高いほどプレイヤー有利。トゥルーカウント = ランニング ÷ 残りデッキ数。</span>
+      </div>
+
+      <div class="subtabs" id="subtabs">
+        <button data-s="running" aria-selected="true">ランニングカウント<br><span style="font-weight:500;font-size:10px">連続で配ってカウント</span></button>
+        <button data-s="tag" aria-selected="false">1枚タグ付け<br><span style="font-weight:500;font-size:10px">±の反射神経</span></button>
+      </div>
+
+      <div class="cControls">
+        <label id="ctrl-num">枚数 <input type="range" id="num" min="5" max="52" step="1" value="15"><span class="val" id="num-v">15</span></label>
+        <label id="ctrl-spd">速さ <input type="range" id="spd" min="0.4" max="2" step="0.1" value="1.0"><span class="val" id="spd-v">1.0s</span></label>
+        <label id="ctrl-deck">デッキ <input type="range" id="cdeck" min="1" max="8" step="1" value="6"><span class="val" id="cdeck-v">6</span></label>
+        <label class="chk" id="ctrl-tc"><input type="checkbox" id="tc"> トゥルーカウントも聞く</label>
+      </div>
+
+      <div class="fl0area">
+        <div class="flashcards" id="flashcards"></div>
+        <div class="progress" id="progress"></div>
+        <div class="tagbtns hidden" id="tagbtns">
+          <button class="tag" data-v="-1">−1<span class="k">1</span></button>
+          <button class="tag" data-v="0">0<span class="k">2</span></button>
+          <button class="tag" data-v="1">+1<span class="k">3</span></button>
+        </div>
+        <div class="countinput hidden" id="countinput">
+          <span style="color:var(--ink-dim);font-size:13px">RC</span>
+          <input type="number" id="rcInput" inputmode="numeric" placeholder="?">
+          <button class="btn gold" id="checkBtn">判定</button>
+        </div>
+      </div>
+
+      <div class="cfeed" id="cfeed"></div>
+      <div class="cactions">
+        <button class="btn gold" id="startBtn">スタート</button>
+      </div>
+      <div class="foot">ランニング=場全体の累計。連続配りモードは最後にRCを入力。タグ付けは1枚ずつ ±を押して反射を鍛える。</div>
+    </div>
+  </div>
+
+</div></div>
+
+<script>
+"use strict";
+/* ============ RULES ============ */
+// surrender: 'none' | 'late' | 'early' ／ decks: 1 | 2 | 6(=4-8) ／ hole: 'peek' | 'enhc' | 'obo'
+// variant: 'classic' | 'freebet'（Free Bet は 6D・H17・Push22 固定）
+const rules={soft17:"S17",dbl:"any",surrender:"late",das:true,decks:6,hole:"peek",variant:"classic"};
+const inSet=t=> rules.dbl==="any"?true : rules.dbl==="9-11"?[9,10,11].includes(t):[10,11].includes(t);
+// h.initial = 2枚の初手（3枚目以降はダブル/スプリット/サレンダー不可）
+// h.fromSplit = スプリット由来のハンド（DASなしならダブル不可）
+const canDouble=h=>{
+  if(h.initial===false)return false;
+  if(h.fromSplit&&!rules.das)return false;
+  if(rules.variant==="freebet")return true;
+  return rules.dbl==="any"?true:(!h.soft&&inSet(h.total));
+};
+const canSurr=h=>rules.surrender!=="none"&&h.initial!==false&&!h.fromSplit;
+
+/* ============ STRATEGY ENGINE ============ */
+// base = 4〜8デッキ / peek / サレンダー無し（サレンダーは surrenderAdjust で付与）
+function hardCode(t,d){
+  if(t<=8)return"H";
+  if(t===9)return(d>=3&&d<=6)?"D":"H";
+  if(t===10)return(d>=2&&d<=9)?"D":"H";
+  if(t===11)return rules.soft17==="H17"?"D":(d<=10?"D":"H");
+  if(t===12)return(d>=4&&d<=6)?"S":"H";
+  if(t>=13&&t<=16)return(d>=2&&d<=6)?"S":"H";
+  return"S"; // 17+
+}
+function softCode(t,d){
+  if(t<=14)return(d>=5&&d<=6)?"D":"H";
+  if(t===15||t===16)return(d>=4&&d<=6)?"D":"H";
+  if(t===17)return(d>=3&&d<=6)?"D":"H";
+  if(t===18){if(rules.soft17==="H17")return(d>=2&&d<=6)?"Ds":(d===7||d===8)?"S":"H";return(d>=3&&d<=6)?"Ds":(d===2||d===7||d===8)?"S":"H";}
+  if(t===19){if(rules.soft17==="H17"&&d===6)return"Ds";return"S";}
+  return"S";
+}
+function pairCode(p,d){
+  if(p===11)return"P"; if(p===10)return"S";
+  if(p===9)return(d===7||d>=10)?"S":"P";
+  if(p===8)return"P";
+  if(p===7)return(d>=2&&d<=7)?"P":"H";
+  if(p===6)return(d>=(rules.das?2:3)&&d<=6)?"P":"H";
+  if(p===5)return hardCode(10,d);
+  if(p===4)return(rules.das&&(d===5||d===6))?"P":"H";
+  if(p===2||p===3)return(d>=(rules.das?2:4)&&d<=7)?"P":"H";
+  return"H";
+}
+function rawCode(h,d){return h.isPair?pairCode(h.pairVal,d):h.soft?softCode(h.total,d):hardCode(h.total,d);}
+
+// --- 1/2デッキの標準偏差（S17基準、published deviations）---
+function deckAdjust(h,d,c){
+  if(rules.decks>=4)return c;
+  if(rules.decks===2){
+    if(!h.isPair&&!h.soft&&h.total===11&&d===11&&rules.soft17==="S17")return"D"; // DD S17: 11 vs A ダブル
+    return c;
+  }
+  // single deck
+  if(h.isPair){
+    if(h.pairVal===7&&d===10)return"S";                          // 7,7 vs 10 スタンド
+    if(h.pairVal===6&&d===7&&rules.soft17==="H17")return"P";     // 6,6 vs 7 (H17) スプリット
+    if(h.pairVal===2&&d===3)return"P";                           // 2,2 vs 3 スプリット
+    return c;
+  }
+  if(h.soft){
+    if(h.total===13&&d===4)return"D";                            // A,2 vs 4
+    if(h.total===14&&d===4)return"D";                            // A,3 vs 4
+    if(h.total===17&&d===2)return"D";                            // A,6 vs 2
+    if(h.total===18&&d===11&&rules.soft17==="S17")return"S";     // A,7 vs A スタンド
+    if(h.total===19&&d===6)return"Ds";                           // A,8 vs 6 ダブル
+    return c;
+  }
+  if(h.total===8&&(d===5||d===6))return"D";                      // hard 8 vs 5,6
+  if(h.total===9&&d===2)return"D";                               // hard 9 vs 2
+  if(h.total===11&&d===11)return"D";                             // hard 11 vs A
+  return c;
+}
+
+// --- ENHC（ノーホールカード）: 10・Aにダブル/スプリットしない ---
+function holeAdjust(h,d,c){
+  if(rules.hole!=="enhc")return c;                               // peek/OBO は通常戦略
+  if((c==="D"||c==="Ds")&&(d===10||d===11))return c==="Ds"?"S":"H";
+  if(c==="P"&&d===11)return"H";                                  // Aにはスプリットしない（A,A vs 10 は d=10 で維持）
+  return c;
+}
+
+// --- サレンダー付与（none / late / early）---
+function surrenderAdjust(h,d,c){
+  const s=rules.surrender;
+  if(!canSurr(h))return c;
+  if(s==="early"){                                               // アーリー（10・A、ピーク前）
+    if(d===11){
+      if(h.isPair&&[3,6,7,8].includes(h.pairVal))return"R";
+      if(!h.isPair&&!h.soft&&((h.total>=5&&h.total<=7)||(h.total>=12&&h.total<=17)))return"R";
+    }
+    if(d===10){
+      if(h.isPair&&[7,8].includes(h.pairVal))return"R";
+      if(!h.isPair&&!h.soft&&h.total>=14&&h.total<=16)return"R";
+    }
+    return c;
+  }
+  // late surrender
+  if(!h.isPair&&!h.soft){
+    if(h.total===16&&(d===9||d===10||d===11))return"R";
+    if(h.total===15&&d===10)return"R";
+    if(rules.soft17==="H17"){
+      if(h.total===15&&d===11)return"R";
+      if(h.total===17&&d===11)return"R";
+    }
+  }
+  if(h.isPair&&h.pairVal===8&&d===11&&rules.soft17==="H17")return"R"; // 8,8 vs A (H17)
+  return c;
+}
+
+function decide(h,d){
+  let c;
+  if(rules.variant==="freebet"){c=fbCode(h,d);}
+  else{
+    c=rawCode(h,d);
+    c=deckAdjust(h,d,c);
+    c=holeAdjust(h,d,c);
+    c=surrenderAdjust(h,d,c);
+  }
+  if(c==="D")return canDouble(h)?"double":"hit";
+  if(c==="Ds")return canDouble(h)?"double":"stand";
+  if(c==="P")return"split"; if(c==="R")return"surrender"; if(c==="S")return"stand"; return"hit";
+}
+
+/* ===== Free Bet Blackjack（6D・H17・Push22）=====
+   核心: フリーダブル(9/10/11)とフリースプリット(10以外の全ペア)は常に実行。
+   スティフ(12-16)は Push22 による微調整（Wizard of Odds 準拠）。 */
+function fbHard(t,d,sur){
+  if(t<=8)return"H";
+  if(t===9||t===10||t===11)return"D";                // フリーダブル(FD): 全ディーラーに実行
+  if(t===12)return(d===5||d===6)?"S":"H";            // Push22: スタンドは5,6のみ
+  if(t===13)return(d>=3&&d<=6)?"S":"H";              // Push22: 13 vs2 はヒット
+  if(t===14)return(d>=2&&d<=6)?"S":"H";
+  if(t===15)return(sur&&(d===10||d===11))?"R":((d>=2&&d<=6)?"S":"H");
+  if(t===16)return(sur&&d>=9)?"R":((d>=2&&d<=6)?"S":"H");
+  if(t===17)return(sur&&d===11)?"R":"S";
+  return"S";
+}
+function fbSoft(t,d){                                  // ソフトは実ベット（フリーダブル対象外）
+  if(t<=15)return"H";                                 // A,2 / A,3 / A,4 は常にヒット
+  if(t===16)return d===6?"D":"H";                     // A,5: 6のみダブル
+  if(t===17)return(d===5||d===6)?"D":"H";             // A,6: 5,6でダブル
+  if(t===18){if(d===5||d===6)return"Ds";return(d<=4||d===7||d===8)?"S":"H";} // A,7
+  return"S";                                          // A,8 / A,9
+}
+function fbCode(h,d){
+  if(h.isPair){
+    if(h.pairVal===10)return"S";                      // 10,10 はスプリットしない
+    if(h.pairVal===5)return"D";                       // 5,5 はフリーダブル(10として)
+    return"P";                                        // フリースプリット: 10以外の全ペアを常に
+  }
+  return h.soft?fbSoft(h.total,d):fbHard(h.total,d,canSurr(h));
+}
+const actionToLetter=a=>({hit:"H",stand:"S",double:"D",split:"P",surrender:"R"}[a]);
+
+/* ============ CARDS ============ */
+const RANKS=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+const SUITS=[["♠",0],["♥",1],["♦",1],["♣",0]];
+const rval=r=>r==="A"?11:(r==="J"||r==="Q"||r==="K"||r==="10")?10:parseInt(r,10);
+const rand=n=>Math.floor(Math.random()*n);
+function drawCard(){const r=RANKS[rand(RANKS.length)];const s=SUITS[rand(4)];return{rank:r,glyph:s[0],red:s[1],v:rval(r)};}
+function evaluate(cards){let t=0,a=0;for(const c of cards){t+=c.v;if(c.v===11)a++;}while(t>21&&a>0){t-=10;a--;}return{total:t,soft:a>0};}
+function describe(cards,opt){
+  opt=opt||{};
+  const ev=evaluate(cards);
+  const initial=cards.length===2&&!opt.noSplitDouble;
+  const isPair=initial&&opt.canSplit!==false&&cards[0].v===cards[1].v;
+  return{isPair,pairVal:isPair?cards[0].v:0,soft:ev.soft,total:ev.total,initial,fromSplit:!!opt.fromSplit};
+}
+function cardEl(c,cls){const d=document.createElement("div");d.className="card"+(c.red?" red":"")+(cls?" "+cls:"");d.innerHTML=`<span class="rk">${c.rank}</span><span class="mid">${c.glyph}</span><span class="st">${c.glyph}</span>`;return d;}
+function handLabel(h){if(h.isPair){return`ペア ${h.pairVal===11?"A":h.pairVal}`;}return h.soft?`ソフト ${h.total}`:`ハード ${h.total}`;}
+const dealerLabel=d=>d===11?"A":String(d);
+const jp={hit:"ヒット",stand:"スタンド",double:"ダブル",split:"スプリット",surrender:"サレンダー"};
+
+/* ============ STRATEGY GAME（ラウンド進行） ============ */
+const MAXHANDS=4;
+let round=null;          // {dealer:[cards], d, hands:[hand], active, phase:'play'|'over'}
+let state=null;          // 現在の判断対象 {info, correct, d} — 表/振り返りが参照
+let answered=false;      // 現在の判断に回答済みか
+let sStat={correct:0,total:0,streak:0};
+let cStat={correct:0,total:0,streak:0};
+let wStat={win:0,lose:0,push:0};
+let mode="strategy";
+let mistakes=[],mid=0,retryId=null;
+
+const newHandObj=(cards,opt)=>Object.assign({cards,done:false,doubled:false,surrendered:false,fromSplit:false,result:null},opt||{});
+const curHand=()=>round&&round.hands[round.active];
+function curInfo(){
+  const h=curHand();
+  return describe(h.cards,{fromSplit:h.fromSplit,canSplit:round.hands.length<MAXHANDS});
+}
+const dealerS17=()=>rules.variant==="freebet"?"H17":rules.soft17;
+
+function newRound(fixed){
+  retryId=null; answered=false;
+  let player,dealer;
+  if(fixed){ player=fixed.player.slice(); dealer=[fixed.up]; }
+  else{
+    do{player=[drawCard(),drawCard()];}while(evaluate(player).total===21); // プレイヤーのナチュラルは配り直し
+    dealer=[drawCard()];
+  }
+  // ホールカード（ディーラーのナチュラルは配り直して回避＝必ず判断が発生する）
+  let hole; do{hole=drawCard();}while(evaluate([dealer[0],hole]).total===21);
+  dealer.push(hole);
+  round={dealer,d:dealer[0].v,hands:[newHandObj(player)],active:0,phase:"play"};
+  askDecision();
+}
+function loadRetry(m){
+  if(mode!=="strategy")setMode("strategy");
+  Object.assign(rules,m.rules);syncSegs();
+  newRound({player:m.player,up:m.dealer});
+  retryId=m.id;
+  document.getElementById("feedback").innerHTML=`<span class="detail" style="color:var(--gold)">【再挑戦】${handLabel(describe(m.player))} 対 ディーラー ${dealerLabel(m.d)} — どうプレイする？</span>`;
+  document.querySelector(".felt").scrollIntoView({behavior:"smooth",block:"center"});
+}
+
+function askDecision(){
+  answered=false;
+  const info=curInfo();
+  state={info,correct:decide(info,round.d),d:round.d};
+  paintTable();
+  document.querySelectorAll(".act").forEach(btn=>{
+    btn.className="act";const a=btn.dataset.a;let legal=true;
+    if(a==="double")legal=canDouble(info);
+    if(a==="split")legal=info.isPair;
+    if(a==="surrender")legal=canSurr(info);
+    btn.disabled=!legal;
+  });
+  const many=round.hands.length>1?`（ハンド${round.active+1}/${round.hands.length}）`:"";
+  document.getElementById("feedback").innerHTML=`<span class="detail">${handLabel(info)} 対 ディーラー ${dealerLabel(round.d)}${many} — どうプレイする？</span>`;
+  document.getElementById("next").disabled=true;
+  const sit=document.getElementById("situation");sit.className="situation";sit.innerHTML="";
+}
+
+function answer(a){
+  if(answered||!round||round.phase!=="play")return;
+  const btn=document.querySelector(`.act[data-a="${a}"]`); if(!btn||btn.disabled)return;
+  answered=true;
+  const info=state.info, correct=state.correct, ok=a===correct;
+  sStat.total++; if(ok){sStat.correct++;sStat.streak++;}else sStat.streak=0; updateStats();
+  document.querySelectorAll(".act").forEach(b=>b.disabled=true);
+  btn.classList.add(ok?"correct":"wrong");
+  if(!ok){const cb=document.querySelector(`.act[data-a="${correct}"]`);if(cb)cb.classList.add("reveal");}
+  const line=`${handLabel(info)} 対 ディーラー ${dealerLabel(round.d)}`;
+  document.getElementById("feedback").innerHTML= ok
+    ?`<span class="verdict ok">正解 ✓</span><span class="detail">${line} → 正しいプレイは <b>${jp[correct]}</b></span>`
+    :`<span class="verdict no">不正解 ✕</span><span class="detail">${line}｜あなた: ${jp[a]} ／ 正解: <b>${jp[correct]}</b></span>`;
+  renderSituation();
+  if(document.getElementById("fullchart").open)renderFull();
+  if(retryId!=null){const m=mistakes.find(x=>x.id===retryId);if(m&&ok)m.resolved=true;renderMistakes();}
+  else if(!ok){
+    mistakes.push({id:++mid,player:curHand().cards.slice(),dealer:round.dealer[0],d:round.d,info:{...info},chosen:a,correct,rules:{...rules},resolved:false});
+    renderMistakes();
+  }
+  setTimeout(()=>applyAction(a),700);   // 判定を見せてから実行
+}
+
+function applyAction(a){
+  const h=curHand();
+  if(a==="stand")h.done=true;
+  else if(a==="surrender"){h.surrendered=true;h.done=true;}
+  else if(a==="double"){h.cards.push(drawCard());h.doubled=true;h.done=true;}
+  else if(a==="hit"){
+    h.cards.push(drawCard());
+    if(evaluate(h.cards).total>=21)h.done=true;   // バースト/21は打ち止め
+  }else if(a==="split"){
+    const moved=h.cards.pop();
+    const isAces=h.cards[0].v===11;
+    const nh=newHandObj([moved],{fromSplit:true});
+    h.fromSplit=true;
+    h.cards.push(drawCard()); nh.cards.push(drawCard());
+    if(isAces){h.done=true;nh.done=true;}          // スプリットAは1枚ずつで打ち止め
+    round.hands.splice(round.active+1,0,nh);
+  }
+  advance();
+}
+function advance(){
+  const i=round.hands.findIndex(h=>!h.done);
+  if(i<0){dealerPhase();return;}
+  round.active=i;
+  askDecision();
+}
+
+function dealerShouldHit(){
+  const ev=evaluate(round.dealer);
+  if(ev.total<17)return true;
+  if(ev.total===17&&ev.soft&&dealerS17()==="H17")return true;
+  return false;
+}
+function dealerPhase(){
+  round.phase="over";
+  const live=round.hands.some(h=>!h.surrendered&&evaluate(h.cards).total<=21);
+  if(live){ while(dealerShouldHit())round.dealer.push(drawCard()); }
+  settle();
+  paintTable();
+  renderResults();
+  document.querySelectorAll(".act").forEach(b=>{b.className="act";b.disabled=true;});
+  document.getElementById("next").disabled=false;
+}
+function settle(){
+  const dt=evaluate(round.dealer).total;
+  const push22=rules.variant==="freebet"&&dt===22;
+  round.hands.forEach(h=>{
+    const pt=evaluate(h.cards).total;
+    if(h.surrendered){h.result="surrender";return;}
+    if(pt>21){h.result="lose";return;}
+    if(push22){h.result="push";return;}
+    if(dt>21){h.result="win";return;}
+    h.result=pt>dt?"win":(pt<dt?"lose":"push");
+  });
+  round.hands.forEach(h=>{
+    if(h.result==="win")wStat.win++;
+    else if(h.result==="push")wStat.push++;
+    else wStat.lose++;   // surrender も負け扱いで集計
+  });
+}
+const RES={win:{t:"WIN",c:"win"},lose:{t:"LOSE",c:"lose"},push:{t:"PUSH",c:"push"},surrender:{t:"SURRENDER",c:"surr"}};
+function paintTable(){
+  const over=round.phase==="over";
+  const dc=document.getElementById("dealer-cards");dc.innerHTML="";
+  round.dealer.forEach((c,i)=>{
+    if(i===1&&!over){const b=cardEl(c,"deal");b.classList.add("back");b.innerHTML="";dc.appendChild(b);}
+    else dc.appendChild(cardEl(c,"deal"));
+  });
+  const dtot=evaluate(round.dealer).total;
+  document.getElementById("dealer-total").textContent=
+    over?(dtot>21?`バースト ${dtot}`:`${dtot}`):dealerLabel(round.d);
+
+  const wrap=document.getElementById("player-hands");
+  wrap.className="phands"+(round.hands.length>2?" multi":"");
+  wrap.innerHTML="";
+  round.hands.forEach((h,i)=>{
+    const el=document.createElement("div");
+    el.className="phand"+(i===round.active&&!over?" active":"");
+    const cd=document.createElement("div");cd.className="cards";
+    h.cards.forEach(c=>cd.appendChild(cardEl(c,"deal")));
+    el.appendChild(cd);
+    const ev=evaluate(h.cards);
+    const tag=document.createElement("span");tag.className="handtag";
+    tag.textContent=(ev.total>21?`バースト ${ev.total}`:`${ev.soft?"ソフト":"ハード"} ${ev.total}`)+(h.doubled?" ×2":"");
+    el.appendChild(tag);
+    if(h.result){const b=document.createElement("span");b.className="rbadge "+RES[h.result].c;b.textContent=RES[h.result].t;el.appendChild(b);}
+    wrap.appendChild(el);
+  });
+}
+function renderResults(){
+  const dtot=evaluate(round.dealer).total;
+  const dstr=dtot>21?`バースト (${dtot})`:String(dtot);
+  const parts=round.hands.map((h,i)=>{const r=RES[h.result];
+    return `<b class="r-${r.c}">${round.hands.length>1?`H${i+1}: `:""}${r.t}</b>`;}).join("　");
+  document.getElementById("feedback").innerHTML=
+    `<span class="verdict">${parts}</span>`+
+    `<span class="detail">ディーラー <b>${dstr}</b>　|　通算 W${wStat.win}・L${wStat.lose}・P${wStat.push}</span>`;
+}
+function updateStats(){
+  const st=mode==="strategy"?sStat:cStat;
+  document.getElementById("s-correct").textContent=st.correct;
+  document.getElementById("s-total").textContent=st.total;
+  document.getElementById("s-streak").textContent=st.streak;
+  document.getElementById("s-acc").textContent=st.total?Math.round(st.correct/st.total*100)+"%":"—";
+}
+
+/* ---- strategy tables (full category + cell highlight) ---- */
+const DEALERS=[2,3,4,5,6,7,8,9,10,11];
+function cellKey(info){if(info.isPair)return"pair-"+(info.pairVal===11?"A":info.pairVal);if(info.soft)return"soft-"+Math.min(Math.max(info.total,13),20);return"hard-"+Math.min(Math.max(info.total,5),20);}
+function buildTable(kind){
+  const t=document.createElement("table");t.className="sc";
+  const head=document.createElement("tr");head.innerHTML=`<th></th>`+DEALERS.map(d=>`<th>${d===11?"A":d}</th>`).join("");t.appendChild(head);
+  let rows=[];
+  if(kind==="hard")for(let x=5;x<=20;x++)rows.push({key:"hard-"+x,label:String(x),hand:()=>({isPair:false,soft:false,total:x})});
+  if(kind==="soft")for(let x=13;x<=20;x++)rows.push({key:"soft-"+x,label:"A,"+(x-11),hand:()=>({isPair:false,soft:true,total:x})});
+  if(kind==="pair")[2,3,4,5,6,7,8,9,10,11].forEach(p=>rows.push({key:"pair-"+(p===11?"A":p),label:p===11?"A,A":`${p},${p}`,hand:()=>({isPair:true,pairVal:p,soft:p===11,total:p===11?12:2*p})}));
+  rows.forEach(r=>{const tr=document.createElement("tr");tr.innerHTML=`<th>${r.label}</th>`;
+    DEALERS.forEach(d=>{const L=actionToLetter(decide(r.hand(),d));const td=document.createElement("td");td.dataset.a=L;td.dataset.cell=r.key+"|"+d;td.textContent=L;tr.appendChild(td);});t.appendChild(tr);});
+  return t;
+}
+function markCell(container){
+  container.querySelectorAll("td.hl").forEach(td=>td.classList.remove("hl"));
+  if(!state||!answered)return;
+  const td=container.querySelector(`td[data-cell="${cellKey(state.info)+"|"+state.d}"]`);
+  if(td)td.classList.add("hl");
+}
+const MINILEG=`<div class="minilegend"><span><i style="background:var(--cell-h)"></i>H ヒット</span><span><i style="background:var(--cell-s)"></i>S スタンド</span><span><i style="background:var(--cell-d)"></i>D ダブル</span><span><i style="background:var(--cell-p)"></i>P スプリット</span><span><i style="background:var(--cell-r)"></i>R サレンダー</span></div>`;
+function renderSituation(){
+  const el=document.getElementById("situation"); const info=state.info;
+  const kind=info.isPair?"pair":info.soft?"soft":"hard";
+  const kindName=kind==="pair"?"ペア":kind==="soft"?"ソフト":"ハード";
+  el.innerHTML=`<span class="cap">${kindName}表 — <b>${handLabel(info)} vs ${dealerLabel(state.d)}</b> を枠表示</span><div class="scwrap"></div>${MINILEG}`;
+  el.querySelector(".scwrap").appendChild(buildTable(kind));
+  markCell(el);
+  el.classList.add("show");
+}
+function renderFull(){
+  document.getElementById("tbl-hard").replaceChildren(buildTable("hard"));
+  document.getElementById("tbl-soft").replaceChildren(buildTable("soft"));
+  document.getElementById("tbl-pair").replaceChildren(buildTable("pair"));
+  markCell(document.getElementById("fullchart"));
+}
+function renderMistakes(){
+  const list=document.getElementById("rev-list");
+  document.getElementById("rev-count").textContent=mistakes.length;
+  document.getElementById("rev-unresolved").textContent=mistakes.filter(m=>!m.resolved).length;
+  list.innerHTML="";
+  if(mistakes.length===0){list.innerHTML=`<div class="rev-empty">まだ間違いはありません。不正解になった手がここに溜まります。</div>`;return;}
+  [...mistakes].reverse().forEach(m=>{
+    const deckL=m.rules.decks===6?"4-8D":m.rules.decks+"D";
+    const ctx=m.rules.variant==="freebet"?"Free Bet":[deckL,m.rules.soft17,m.rules.hole!=="peek"?m.rules.hole.toUpperCase():null].filter(Boolean).join("・");
+    const div=document.createElement("div");div.className="rev-item"+(m.resolved?" done":"");
+    div.innerHTML=`<span class="rev-hand">${handLabel(m.info)} 対 ${dealerLabel(m.d)}</span>
+      <span class="rev-ans"><b class="no">${jp[m.chosen]}</b> → <b class="ok">${jp[m.correct]}</b></span>
+      <span class="rev-ctx">${ctx}</span>`;
+    const btn=document.createElement("button");btn.className="rev-retry";btn.textContent=m.resolved?"✓ 克服":"再挑戦";
+    if(m.resolved)btn.disabled=true; else btn.addEventListener("click",()=>loadRetry(m));
+    div.appendChild(btn);list.appendChild(div);
+  });
+}
+
+/* ---- rules controls ---- */
+function updateVariantUI(){
+  const fb=rules.variant==="freebet";
+  document.getElementById("fbnote").style.display=fb?"block":"none";
+  // Free Bet でも「サレンダー」はテーブル次第なので有効のまま
+  // 無効化は seg だけに掛ける（ⓘ の説明は Free Bet 中でも読めるように）
+  ["seg-s17","seg-dbl","seg-das","seg-deck","seg-hole"].forEach(id=>{const s=document.getElementById(id);const g=s.closest(".rgroup");if(g)g.style.opacity=fb?".45":"1";s.style.pointerEvents=fb?"none":"auto";});
+}
+function syncSegs(){const map={"seg-variant":rules.variant,"seg-s17":rules.soft17,"seg-dbl":rules.dbl,"seg-sur":rules.surrender,"seg-das":rules.das?"on":"off","seg-deck":String(rules.decks),"seg-hole":rules.hole};
+  for(const[id,val]of Object.entries(map))document.querySelectorAll(`#${id} button`).forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.v===val)));
+  updateVariantUI();}
+function refreshRule(){
+  if(document.getElementById("fullchart").open)renderFull();
+  if(round&&round.phase==="play"&&!answered)askDecision();   // 正解とボタン可否を再計算
+}
+function bindSeg(id,fn){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener("click",()=>{fn(b.dataset.v);syncSegs();refreshRule();}));}
+bindSeg("seg-s17",v=>rules.soft17=v);bindSeg("seg-dbl",v=>rules.dbl=v);bindSeg("seg-sur",v=>rules.surrender=v);
+bindSeg("seg-das",v=>rules.das=(v==="on"));bindSeg("seg-deck",v=>rules.decks=parseInt(v,10));bindSeg("seg-hole",v=>rules.hole=v);
+bindSeg("seg-variant",v=>rules.variant=v);
+const BASE={soft17:"S17",dbl:"any",surrender:"late",das:true,decks:6,hole:"peek",variant:"classic"};
+const PRESETS=[
+  {name:"スタンダード",r:{...BASE}},
+  {name:"サレンダーなし",r:{...BASE,surrender:"none"}},
+  {name:"ダブルは9以上のみ",r:{...BASE,dbl:"9-11"}},
+  {name:"H17",r:{...BASE,soft17:"H17"}},
+  {name:"アーリーサレンダー",r:{...BASE,surrender:"early"}},
+  {name:"シングルデッキ",r:{...BASE,decks:1,das:false,surrender:"none"}},
+  {name:"欧州ENHC",r:{...BASE,decks:6,dbl:"9-11",surrender:"none",hole:"enhc"}},
+  {name:"Free Bet",r:{...BASE,soft17:"H17",surrender:"late",variant:"freebet"}},
+];
+(function(){const w=document.getElementById("presets");PRESETS.forEach(p=>{const b=document.createElement("button");b.className="preset";b.textContent=p.name;b.addEventListener("click",()=>{Object.assign(rules,p.r);syncSegs();refreshRule();});w.appendChild(b);});})();
+
+document.querySelectorAll(".act").forEach(b=>b.addEventListener("click",()=>answer(b.dataset.a)));
+document.getElementById("next").addEventListener("click",()=>{if(round&&round.phase==="over")newRound();});
+document.getElementById("fullchart").addEventListener("toggle",e=>{if(e.target.open)renderFull();});
+
+/* ============ COUNTING MODE ============ */
+const HILO=r=>(["2","3","4","5","6"].includes(r)?1:(["7","8","9"].includes(r)?0:-1));
+let csub="running";
+let shoe=[],cRun=null;
+function buildShoe(decks){const s=[];for(let i=0;i<decks;i++)for(const r of RANKS)for(const su of SUITS)s.push({rank:r,glyph:su[0],red:su[1]});
+  for(let i=s.length-1;i>0;i--){const j=rand(i+1);[s[i],s[j]]=[s[j],s[i]];}return s;}
+
+const el=id=>document.getElementById(id);
+function readCtl(){return{num:+el("num").value,spd:+el("spd").value,deck:+el("cdeck").value,tc:el("tc").checked};}
+el("num").addEventListener("input",()=>el("num-v").textContent=el("num").value);
+el("spd").addEventListener("input",()=>el("spd-v").textContent=(+el("spd").value).toFixed(1)+"s");
+el("cdeck").addEventListener("input",()=>el("cdeck-v").textContent=el("cdeck").value);
+
+document.querySelectorAll("#subtabs button").forEach(b=>b.addEventListener("click",()=>{
+  csub=b.dataset.s; document.querySelectorAll("#subtabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));
+  resetCount();
+}));
+function setCountUI(){
+  const running=csub==="running";
+  el("ctrl-num").classList.toggle("hidden",!running);
+  el("ctrl-tc").classList.toggle("hidden",!running);
+  el("startBtn").classList.toggle("hidden",!running);
+  el("tagbtns").classList.toggle("hidden",running);
+  el("countinput").classList.add("hidden");
+  el("progress").textContent="";
+  el("flashcards").innerHTML= running?`<span style="color:var(--ink-dim)">スタートで${readCtl().num}枚を連続表示</span>`:"";
+  el("cfeed").innerHTML="";
+  if(!running) tagNext();
+}
+function resetCount(){cRun=null;setCountUI();}
+
+/* running-count drill */
+function runFlash(){
+  const cfg=readCtl(); shoe=buildShoe(cfg.deck);
+  let i=0,run=0; const seq=[];
+  el("startBtn").disabled=true; el("cfeed").innerHTML=""; el("countinput").classList.add("hidden");
+  const fc=el("flashcards");
+  function step(){
+    if(i>=cfg.num){finish();return;}
+    const c=shoe[i]; seq.push(c); run+=HILO(c.rank);
+    fc.innerHTML=""; fc.appendChild(cardEl(c,"big pop"));
+    el("progress").textContent=`${i+1} / ${cfg.num}`;
+    i++; setTimeout(step, cfg.spd*1000);
+  }
+  function finish(){
+    cRun={run, dealt:cfg.num, deck:cfg.deck, tc:cfg.tc};
+    fc.innerHTML=`<span style="color:var(--ink-dim)">全${cfg.num}枚 終了 — RCは？</span>`;
+    el("progress").textContent="";
+    el("countinput").classList.remove("hidden"); el("rcInput").value=""; el("rcInput").focus();
+    el("startBtn").disabled=false;
+  }
+  step();
+}
+function checkRunning(){
+  if(!cRun)return;
+  const guess=parseInt(el("rcInput").value,10);
+  if(isNaN(guess)){el("cfeed").innerHTML=`<span class="no">数字を入力してください</span>`;return;}
+  const ok=guess===cRun.run;
+  cStat.total++; if(ok){cStat.correct++;cStat.streak++;}else cStat.streak=0; updateStats();
+  let extra="";
+  if(cRun.tc){const remain=Math.max(0.25,cRun.deck-cRun.dealt/52);const trueC=Math.round(cRun.run/remain);
+    extra=` ／ トゥルーカウント ≈ <b>${trueC>0?"+":""}${trueC}</b>（残り約${remain.toFixed(1)}デッキ）`;}
+  el("cfeed").innerHTML= ok
+    ?`<span class="verdict ok">正解 ✓</span> ランニングカウント <b>${cRun.run>0?"+":""}${cRun.run}</b>${extra}`
+    :`<span class="verdict no">不正解 ✕</span> あなた: ${guess} ／ 正解 RC: <b>${cRun.run>0?"+":""}${cRun.run}</b>${extra}`;
+  el("countinput").classList.add("hidden"); cRun=null;
+}
+el("startBtn").addEventListener("click",runFlash);
+el("checkBtn").addEventListener("click",checkRunning);
+el("rcInput").addEventListener("keydown",e=>{if(e.key==="Enter")checkRunning();});
+
+/* tag drill */
+let tagCard=null,tagLock=false;
+function tagNext(){tagLock=false;tagCard=drawCard();const fc=el("flashcards");fc.innerHTML="";fc.appendChild(cardEl(tagCard,"big pop"));
+  document.querySelectorAll("#tagbtns .tag").forEach(b=>b.className="tag"); }
+function tagAnswer(v){
+  if(tagLock||!tagCard||csub!=="tag")return; tagLock=true;
+  const correct=HILO(tagCard.rank); const ok=v===correct;
+  cStat.total++; if(ok){cStat.correct++;cStat.streak++;}else cStat.streak=0; updateStats();
+  const btn=document.querySelector(`#tagbtns .tag[data-v="${v}"]`); if(btn)btn.classList.add(ok?"correct":"wrong");
+  if(!ok){const cb=document.querySelector(`#tagbtns .tag[data-v="${correct}"]`);if(cb)cb.classList.add("correct");}
+  el("cfeed").innerHTML= ok?`<span class="ok">✓ ${tagCard.rank} = ${correct>0?"+":""}${correct}</span>`
+    :`<span class="no">✕ ${tagCard.rank} は ${correct>0?"+":""}${correct}</span>`;
+  setTimeout(()=>{if(csub==="tag")tagNext(); el("cfeed").innerHTML="";},650);
+}
+document.querySelectorAll("#tagbtns .tag").forEach(b=>b.addEventListener("click",()=>tagAnswer(+b.dataset.v)));
+
+/* ============ MODE SWITCH ============ */
+function setMode(m){
+  mode=m;
+  document.querySelectorAll("#modetabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.m===m)));
+  el("mode-strategy").classList.toggle("hidden",m!=="strategy");
+  el("mode-count").classList.toggle("hidden",m!=="count");
+  updateStats();
+  if(m==="count")setCountUI();
+}
+document.querySelectorAll("#modetabs button").forEach(b=>b.addEventListener("click",()=>setMode(b.dataset.m)));
+
+/* ============ KEYS ============ */
+document.addEventListener("keydown",e=>{
+  const k=e.key.toLowerCase();
+  if(mode==="strategy"){
+    if(k==="n"){if(round&&round.phase==="over")newRound();return;}
+    const m={h:"hit",s:"stand",d:"double",p:"split",r:"surrender"}; if(m[k])answer(m[k]);
+  }else if(mode==="count"&&csub==="tag"){
+    if(k==="1")tagAnswer(-1); else if(k==="2")tagAnswer(0); else if(k==="3")tagAnswer(1);
+  }
+});
+
+document.getElementById("rev-clear").addEventListener("click",()=>{mistakes=[];renderMistakes();});
+
+/* ⓘ ツールチップ（タップでも開ける／画面端でははみ出さないよう寄せる） */
+function placeTip(b){
+  const tip=b.querySelector(".tip"); if(!tip)return;
+  tip.style.transform="translateX(-50%)"; tip.style.setProperty("--arrow-dx","0px");
+  const hidden=getComputedStyle(tip).display==="none";
+  if(hidden){tip.style.display="block";tip.style.visibility="hidden";}
+  const r=tip.getBoundingClientRect(), pad=10; let shift=0;
+  if(r.left<pad)shift=pad-r.left;
+  else if(r.right>window.innerWidth-pad)shift=window.innerWidth-pad-r.right;
+  if(hidden){tip.style.display="";tip.style.visibility="";}
+  if(shift){tip.style.transform=`translateX(calc(-50% + ${shift}px))`;tip.style.setProperty("--arrow-dx",(-shift)+"px");}
+}
+document.querySelectorAll(".info").forEach(b=>{
+  b.addEventListener("mouseenter",()=>placeTip(b));
+  b.addEventListener("focus",()=>placeTip(b));
+  b.addEventListener("click",e=>{
+    e.stopPropagation();
+    const open=b.classList.contains("open");
+    document.querySelectorAll(".info.open").forEach(x=>x.classList.remove("open"));
+    if(!open){placeTip(b);b.classList.add("open");}
+  });
+});
+document.addEventListener("click",()=>document.querySelectorAll(".info.open").forEach(x=>x.classList.remove("open")));
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".info.open").forEach(x=>x.classList.remove("open"));});
+
+/* ============ INIT ============ */
+syncSegs(); updateStats(); renderMistakes(); newRound();
+</script>
