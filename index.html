@@ -843,6 +843,8 @@ let round=null;          // {dealer:[cards], d, hands:[hand], active, phase:'pla
 let playLog=[];          // このセッションの各判断 {hand,info,d,chosen,correct,ok,roundNo}
 let playRoundNo=0;       // 通し番号
 let wStat={win:0,lose:0,push:0};
+let playTimer=null;      // 結果ビートの遅延タイマー（モード切替時に必ずキャンセル）
+function clearPlayTimer(){ if(playTimer){clearTimeout(playTimer);playTimer=null;} }
 // ストラテジー（1手判定）モード
 let sState=null;         // {player:[cards], up, d, info, correct}
 let sAnswered=false;
@@ -874,6 +876,7 @@ function legalButtons(info){
 
 /* ===== 実践（プレイ）：勝負がつくまで ===== */
 function newRound(){
+  clearPlayTimer();
   playRoundNo++;
   let player;
   do{player=[drawCard(),drawCard()];}while(evaluate(player).total===21); // プレイヤーのナチュラルは配り直し
@@ -895,6 +898,7 @@ function askDecision(){
 
 /* ===== ストラテジー（1手判定）：ディーラー処理・勝敗なし ===== */
 function dealStrategy(fixed){
+  clearPlayTimer();
   retryId=null; sAnswered=false; answered=false;
   let player,up;
   if(fixed){ player=fixed.player.slice(); up=fixed.up; }
@@ -1140,7 +1144,8 @@ function commitAction(a){
   narrateAction(a,h);                   // 何が起きたかを文で見せる
   const busted=evaluate(h.cards).total>21;
   const pause=(a==="stand"||a==="surrender")?700:(a==="split"?900:(busted?1200:1050));
-  setTimeout(advance,pause);
+  clearPlayTimer();
+  playTimer=setTimeout(()=>{playTimer=null;advance();},pause);
 }
 function narrateAction(a,h){
   const fb=document.getElementById("feedback");
@@ -1157,6 +1162,7 @@ function narrateAction(a,h){
     fb.innerHTML=`<span class="detail">サレンダー — 賭け金の半分を回収して撤退</span>`;
 }
 function advance(){
+  if(mode!=="play"||!round||round.phase!=="play")return;   // 別モードへ漏れたタイマーは無効
   const i=round.hands.findIndex(h=>!h.done);
   if(i<0){dealerPhase();return;}
   round.active=i;
@@ -1347,7 +1353,7 @@ function syncSegs(){const map={"seg-variant":rules.variant,"seg-s17":rules.soft1
 function refreshRule(){
   if(document.getElementById("fullchart").open)renderFull();
   if(mode==="strategy"&&sState&&!sAnswered){sState.correct=decide(sState.info,sState.d);state.correct=sState.correct;legalButtons(sState.info);}
-  if(mode==="play"&&round&&round.phase==="play")askDecision();  // 正解とボタン可否を再計算
+  if(mode==="play"&&round&&round.phase==="play"&&!playTimer)askDecision();  // 結果ビート中(タイマー保留)は触らない
 }
 function bindSeg(id,fn){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener("click",()=>{fn(b.dataset.v);syncSegs();refreshRule();}));}
 bindSeg("seg-s17",v=>rules.soft17=v);bindSeg("seg-dbl",v=>rules.dbl=v);bindSeg("seg-sur",v=>rules.surrender=v);
@@ -1411,6 +1417,7 @@ function runFlash(){
   el("startBtn").disabled=true; el("cfeed").innerHTML=""; el("countinput").classList.add("hidden");
   const fc=el("flashcards");
   function step(){
+    if(mode!=="count"||csub!=="running"){el("startBtn").disabled=false;return;}  // 別モードへ移ったら停止
     if(i>=cfg.num){finish();return;}
     const c=shoe[i]; seq.push(c); run+=HILO(c.rank);
     fc.innerHTML=""; fc.appendChild(cardEl(c,"big pop"));
@@ -1456,7 +1463,7 @@ function tagAnswer(v){
   if(!ok){const cb=document.querySelector(`#tagbtns .tag[data-v="${correct}"]`);if(cb)cb.classList.add("correct");}
   el("cfeed").innerHTML= ok?`<span class="ok">✓ ${tagCard.rank} = ${correct>0?"+":""}${correct}</span>`
     :`<span class="no">✕ ${tagCard.rank} は ${correct>0?"+":""}${correct}</span>`;
-  setTimeout(()=>{if(csub==="tag")tagNext(); el("cfeed").innerHTML="";},650);
+  setTimeout(()=>{if(mode==="count"&&csub==="tag"){tagNext();el("cfeed").innerHTML="";}},650);
 }
 document.querySelectorAll("#tagbtns .tag").forEach(b=>b.addEventListener("click",()=>tagAnswer(+b.dataset.v)));
 
@@ -1573,7 +1580,14 @@ el("d-reset").addEventListener("click",()=>{dStep=0;renderDemo();});
 document.querySelectorAll(".dchip").forEach(b=>b.addEventListener("click",()=>setDemo(+b.dataset.demo)));
 
 /* ============ MODE SWITCH ============ */
+function resumePlay(){
+  if(!round){newRound();return;}
+  if(round.phase==="over"){paintTable();renderResults();document.getElementById("next-p").disabled=false;return;}
+  const h=round.hands[round.active];
+  if(h&&h.done)advance(); else askDecision();   // 中断していた進行を再開
+}
 function setMode(m){
+  clearPlayTimer();                 // ★ どのモードへ移るときも実践の遅延タイマーを止める（共有DOM汚染の防止）
   mode=m;
   document.querySelectorAll("#modetabs button").forEach(b=>b.setAttribute("aria-selected",String(b.dataset.m===m)));
   const table=(m==="strategy"||m==="play");
@@ -1584,8 +1598,18 @@ function setMode(m){
   el("panel-play").classList.toggle("hidden",m!=="play");
   el("expbar").classList.toggle("hidden",m!=="strategy");   // 解説モードはストラテジー専用
   el("statwrap").style.display=(m==="strategy"||m==="count")?"":"none";
-  if(m==="strategy"){ updateStats(); if(!sState)dealStrategy(); }
-  if(m==="play"){ if(!round)newRound(); updatePlaySummary(); renderPlayReview(); }
+  // 各モードに入る時、そのモードの表示を必ず描き直す（他モードが共有DOMに残した内容を上書き）
+  if(m==="strategy"){
+    updateStats();
+    if(!sState||sAnswered)dealStrategy();   // 未着手/回答済みなら新しい手
+    else{ // 未回答の手を再入時に完全復元（カード・ボタン・プロンプト・次ボタンすべて）
+      paintStrategy(); legalButtons(sState.info);
+      el("feedback").innerHTML=`<span class="detail">${handLabel(sState.info)} 対 ディーラー ${dealerLabel(sState.d)} — どうプレイする？</span>`;
+      el("next-s").disabled=true; hideExplain();
+      const sit=el("situation"); sit.className="situation"; sit.innerHTML="";
+    }
+  }
+  if(m==="play"){ resumePlay(); updatePlaySummary(); renderPlayReview(); }
   if(m==="count"){ updateStats(); setCountUI(); }
   if(m==="rules")renderDemo();
 }
