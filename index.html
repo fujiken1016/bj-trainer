@@ -146,6 +146,12 @@
     .dbar{padding:12px; gap:9px}
     .dnote{font-size:14px; padding:13px 14px}
     .review,.countpanel .hilo,.cControls{padding:12px}
+    .expbar{padding:9px 11px; gap:9px}
+    .expbar .sub{font-size:10px}
+    .explain{padding:14px 14px}
+    .explain .eh{font-size:16px; flex-wrap:wrap; gap:6px}
+    .explain li{font-size:14px}
+    .explain .proceed{min-height:48px}
 
     /* 戦略表：横スクロールで潰さない */
     .full .inner{overflow-x:auto}
@@ -174,6 +180,39 @@
   .feedback .verdict.no{color:var(--bad-hi)}
   .feedback .detail{color:var(--ink-dim); font-size:13px}
   .feedback .detail b{color:var(--gold)}
+
+  /* 解説モード */
+  .expbar{display:flex; align-items:center; gap:10px; background:var(--panel); border:1px solid var(--border);
+    border-radius:12px; padding:9px 14px; margin-bottom:10px}
+  .expbar .lead{font-size:12.5px; color:var(--ink); display:flex; align-items:center; gap:7px}
+  .expbar .lead b{color:var(--gold)}
+  .expbar .sub{font-size:11px; color:var(--ink-dim); margin-left:auto; text-align:right; line-height:1.4}
+  .switch{position:relative; width:46px; height:26px; flex:0 0 auto; cursor:pointer}
+  .switch input{position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer}
+  .switch .track{position:absolute; inset:0; background:#ffffff1f; border:1px solid var(--border); border-radius:20px; transition:background .15s}
+  .switch .knob{position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#e9e4d5; transition:transform .18s}
+  .switch input:checked ~ .track{background:var(--gold)}
+  .switch input:checked ~ .knob{transform:translateX(20px); background:#241f10}
+  .switch input:focus-visible ~ .track{outline:2px solid var(--gold); outline-offset:2px}
+  .explain{display:none; background:#cba24c10; border:1px solid var(--gold-dim); border-radius:14px;
+    padding:15px 17px; margin-top:12px; text-align:left; width:100%}
+  .explain.show{display:block; animation:fadeup .25s ease}
+  @keyframes fadeup{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+  .explain .eh{font-family:var(--serif); font-size:16.5px; color:var(--gold); margin-bottom:9px; line-height:1.4;
+    display:flex; align-items:baseline; gap:8px}
+  .explain .eh .badge{font-family:var(--ui); font-size:10.5px; font-weight:800; letter-spacing:.08em;
+    background:var(--gold); color:#241f10; padding:3px 9px; border-radius:20px; white-space:nowrap; flex:0 0 auto}
+  .explain ul{list-style:none; display:flex; flex-direction:column; gap:8px; margin:0}
+  .explain li{position:relative; padding-left:20px; font-size:13.5px; line-height:1.8; color:var(--ink)}
+  .explain li::before{content:""; position:absolute; left:4px; top:11px; width:6px; height:6px; border-radius:50%;
+    background:var(--gold); opacity:.7}
+  .explain b{color:var(--gold)}
+  .explain .em{color:var(--bad-hi); font-weight:700}
+  .explain .counter{margin-top:11px; padding:10px 13px; background:#00000030; border-radius:10px;
+    font-size:12.5px; line-height:1.7; color:var(--ink-dim)}
+  .explain .counter b{color:#f0e6cf}
+  .explain .proceed{margin-top:14px; appearance:none; cursor:pointer; font-family:var(--ui); font-weight:800;
+    font-size:14px; color:#241f10; background:var(--gold); border:0; border-radius:10px; padding:11px 22px; width:100%}
 
   /* situation-only strategy strip */
   .situation{display:none; flex-direction:column; align-items:center; gap:7px; margin-top:6px}
@@ -468,6 +507,12 @@
     <div class="fbnote" id="fbnote" style="margin-bottom:18px">Free Bet（6デッキ・H17・Push22 固定／Wizard of Odds 実ベット表準拠）：フリーダブル<b>9/10/11</b>とフリースプリット<b>10以外の全ペア</b>は常に実行（<b>5,5はダブル・10,10はスタンド</b>）。ソフトは<b>A,2〜A,4は常にヒット</b>。ディーラー22はプッシュ。<b>サレンダー</b>はテーブル次第なので左のトグルで切替可。他トグルは無効。</div>
     <div style="height:10px"></div>
 
+    <div class="expbar">
+      <label class="switch"><input type="checkbox" id="explainOn"><span class="track"></span><span class="knob"></span></label>
+      <span class="lead">💡 <b>解説モード</b></span>
+      <span class="sub">1手ごとに「なぜこのプレイか」を解説。<br>ONの間は自動で進まず、読んでから進めます。</span>
+    </div>
+
     <div class="felt">
       <div class="zone">
         <span class="rlabel">ディーラー</span>
@@ -490,6 +535,8 @@
     </div>
 
     <div class="feedback" id="feedback"><span class="detail">アクションを選択（キーボード H / S / D / P / R も可）</span></div>
+
+    <div class="explain" id="explain"></div>
 
     <div class="situation" id="situation"></div>
 
@@ -801,7 +848,152 @@ function askDecision(){
   document.getElementById("feedback").innerHTML=`<span class="detail">${handLabel(info)} 対 ディーラー ${dealerLabel(round.d)}${many} — どうプレイする？</span>`;
   document.getElementById("next").disabled=true;
   const sit=document.getElementById("situation");sit.className="situation";sit.innerHTML="";
+  hideExplain();
 }
+
+/* ============ 解説モード：なぜこのプレイか ============ */
+const explainOn=()=>document.getElementById("explainOn").checked;
+let pendingAction=null;
+// ディーラーのアップカード評価（バースト率はS17標準の概算）
+function dealerRead(d){
+  const bust={2:35,3:37,4:40,5:42,6:42,7:26,8:24,9:23,10:23,11:17}[d];
+  if(d>=2&&d<=6)return{tier:"weak",bust,txt:`ディーラーの表は<b>${dealerLabel(d)}</b>。2〜6は「バーストカード」と呼ばれ、ディーラーが自滅しやすい（バースト率 約${bust}%）。`};
+  if(d===7||d===8)return{tier:"mid",bust,txt:`ディーラーの表は<b>${dealerLabel(d)}</b>。中くらいの強さ（バースト率 約${bust}%）。`};
+  return{tier:"strong",bust,txt:`ディーラーの表は<b>${dealerLabel(d)}</b>。強いアップカードで17以上を作りやすい（バースト率 約${bust}%）。`};
+}
+const holeModel=d=>`ブラックジャックでは<b>伏せ札を10札と仮定して読む</b>のが基本。この場合ディーラーは<b>${d===11?"21":String(d+10)}前後</b>を隠している可能性が高い。`;
+// {head, badge, points:[], counter}
+function explainPlay(info,d,correct){
+  const dr=dealerRead(d), T=info.total, fb=rules.variant==="freebet";
+  const badge={hit:"ヒット",stand:"スタンド",double:"ダブルダウン",split:"スプリット",surrender:"サレンダー"}[correct];
+  const P={head:"",badge,points:[],counter:""};
+
+  if(correct==="surrender"){
+    P.head="勝ち目が薄いので「降りる」。";
+    P.points.push(dr.txt+holeModel(d));
+    P.points.push(`自分の <b>${T}</b> は、引けば10札でバースト、止まってもディーラーの高い手に負けやすく、<b>勝率はおよそ3割以下</b>。`);
+    P.points.push(`サレンダーなら<b>賭け金の半分が戻る</b>。「半分負け」を確定させる方が、フルに賭けて戦うより長期的な損失が小さい。`);
+    P.counter="引く・止まるは魅力的に見えても、平均すると賭け金をより多く失う。撤退も立派な戦略。";
+    return P;
+  }
+
+  if(correct==="split"){
+    const p=info.pairVal;
+    if(p===11){
+      P.head="Aのペアは必ず分割。";
+      P.points.push(`Aは<b>11として使える最強のカード</b>。2枚まとめても12にしかならないが、分ければ<b>それぞれで21（一撃の勝ち手）を狙える</b>2つの手になる。`);
+      P.points.push(fb?`Free Betでは<b>フリースプリット</b>（追加の賭け金はカジノ持ち）。タダで2つの手にできるので迷う理由がない。`:dr.txt);
+      P.counter="分割せず1つの手にすると、最強のAを1回しか活かせず大損。";
+    }else if(p===8){
+      P.head="8,8は必ず分割。";
+      P.points.push(`2枚合計の <b>16</b> は<span class="em">最も勝ちにくい手</span>。このまま戦うより、8を2つに割って<b>それぞれ18前後の良い手</b>を狙う方が期待値が高い。`);
+      P.points.push(fb?`Free Betでは<b>フリースプリット</b>で追加の賭け金はカジノ持ち。タダで悪い16を2つの好スタートに変えられる。`:dr.txt);
+      P.counter="止まる/引くは、最悪の16のまま勝負することになり分が悪い。";
+    }else if(p===9){
+      P.head="9,9は分割して2つの好スタート。";
+      P.points.push(`合計18も悪くないが、<b>弱いディーラー相手には分割の方が期待値が高い</b>。9スタートを2つ持てる。`);
+      P.points.push(dr.txt);
+      P.counter="7・10・A に対しては、逆に18で十分なのでスタンドが正解（相手が強いと分割はかえって危険）。";
+    }else{
+      P.head=`${p},${p} は分割が得。`;
+      P.points.push(dr.txt+`弱い相手にペアを分けて、2つの手で攻める方が有利。`);
+      if(fb)P.points.push(`Free Betでは<b>フリースプリット</b>なので追加の賭け金はかからない。`);
+      else if(rules.das)P.points.push(`このテーブルは<b>DASあり</b>（分割後もダブル可）なので、分割の価値がさらに高い。`);
+    }
+    return P;
+  }
+
+  if(correct==="double"){
+    if(info.soft){
+      P.head="ソフトだから思い切ってダブル。";
+      P.points.push(`Aを11で数えているので<b>1枚引いてもバーストしない</b>（ノーリスク）。`);
+      P.points.push(dr.txt+`弱い相手に賭け金を増やして取りに行く場面。`);
+      P.points.push(fb?`Free Betの<b>フリーダブル</b>なら追加分はカジノ持ち。タダで賭け金2倍と同じ。`:`1枚しか引けないが、ソフトは伸ばして勝負を決めたい手なので問題ない。`);
+      P.counter="ただヒットするだけでは、有利な場面で賭け金を増やすチャンスを逃す。";
+    }else{
+      P.head=`${T}はダブルの絶好機。`;
+      P.points.push(`合計 <b>${T}</b> は理想的な出だし。次に10札（デッキの<b>約3割</b>）を引けば <b>${T+10}</b> が完成する。`);
+      P.points.push(dr.txt);
+      P.points.push(fb?`Free Betの<b>フリーダブル</b>なので追加の賭け金はカジノ持ち。9/10/11では必ず実行。`:`賭け金を倍にして攻める。引けるのは1枚だけだが、${T}はもともと1枚で仕上げたい手なので損はない。`);
+      P.counter="ただヒットすると勝率は同じでも、勝った時の取り分が半分になる。攻めるべき場面。";
+    }
+    return P;
+  }
+
+  if(correct==="stand"){
+    if(info.soft){
+      if(T>=19){P.head=`ソフト${T}は十分に強い。スタンド。`;
+        P.points.push(`${T}はディーラーに勝てる高さ。引いて崩す必要はない。`);P.points.push(dr.txt);}
+      else{P.head="ソフト18は勝負できる高さ。";
+        P.points.push(dr.txt+`このくらいの相手なら18で十分に戦える。`);
+        P.points.push(`引いて18を崩すリスクの方が大きいので止める（ただし相手が9・10・Aなら18では足りず引くのが正解）。`);}
+      return P;
+    }
+    if(T>=17){
+      P.head=`${T}は十分な高さ。スタンド。`;
+      P.points.push(`17以上で引くと、小さい数字でも<span class="em">すぐバースト</span>する危険が高く、割に合わない。`);
+      P.points.push(dr.txt);
+      P.counter="もう1枚で21を狙いたくなるが、成功する確率よりバーストする確率の方が高い。";
+      return P;
+    }
+    // スティフ 12-16 vs 弱いディーラー
+    P.head="引かずに待つ「守りの一手」。";
+    P.points.push(dr.txt);
+    P.points.push(`自分の <b>${T}</b> は中途半端だが、ここで引くと<b>10札でバースト</b>する危険が高い。`);
+    P.points.push(`相手が自滅しやすい今、<span class="em">自分からリスクを取る必要はない</span>。ディーラーのバーストを待つのが正解。`);
+    P.counter=`${T}は低く感じて引きたくなるが、先にバーストしたら即負け。12でも“あえて止まる”のがこのゲームの肝。`;
+    return P;
+  }
+
+  // correct === "hit"
+  if(info.soft){
+    if(T>=18){
+      P.head=`ソフト${T}でも、強い相手には足りない。`;
+      P.points.push(dr.txt);
+      P.points.push(`ソフト${T}は一見良いが、この相手には<b>${T}では勝ちきれない</b>ことが多い。`);
+      P.points.push(`ソフトなので<b>引いてもバーストせず</b>、より強い手へ改善を狙える。だから引く。`);
+    }else{
+      P.head="ソフトはノーリスクで伸ばせる。";
+      P.points.push(`Aを11で数えているので<b>1枚引いてもバーストしない</b>。`);
+      P.points.push(`${T}のまま止まるには低いので、リスクゼロで手を伸ばすのが得。`);
+    }
+    return P;
+  }
+  if(T<=11){
+    P.head="バーストしないので迷わず引く。";
+    P.points.push(`合計 <b>${T}</b> は<b>1枚では絶対にバーストしない</b>（引くほど手が良くなる一方）。`);
+    P.points.push(T===11?`特に11は10札を引けば21。非常に強い出だし。`:dr.txt);
+    return P;
+  }
+  // スティフ 12-16 vs 強い/中ディーラー（または 12 vs 2,3）
+  if(dr.tier==="weak"){ // 12 vs 2,3 のような僅差ヒット
+    P.head="わずかに引く方が有利。";
+    P.points.push(dr.txt+`ただし2・3は4〜6ほどはバーストしない。`);
+    P.points.push(`12は最もバーストしにくいスティフ（10札を引いた時だけ＝<b>約3割</b>）なので、止まるより引く方が計算上わずかに得。`);
+    return P;
+  }
+  P.head="苦しいが、引くしかない。";
+  P.points.push(dr.txt+holeModel(d));
+  P.points.push(`自分の <b>${T}</b> のまま止まっても、その高い手には<b>勝てない公算が大きい</b>。`);
+  P.points.push(`バーストの危険を負ってでも<b>手を改善する</b>方が、負けをただ待つよりマシ。`);
+  P.counter="止まりたくなるが、弱い17未満のまま降りると、ほとんどの場合そのまま負ける。";
+  return P;
+}
+function renderExplain(info,d,correct){
+  const e=document.getElementById("explain");
+  const x=explainPlay({...info},d,correct);
+  e.innerHTML=`<div class="eh"><span class="badge">正解: ${x.badge}</span><span>${x.head}</span></div>`+
+    `<ul>${x.points.map(p=>`<li>${p}</li>`).join("")}</ul>`+
+    (x.counter?`<div class="counter"><b>なぜ他の手ではないか：</b>${x.counter}</div>`:"")+
+    `<button class="proceed" id="exp-proceed">続ける ▸</button>`;
+  e.classList.add("show");
+  document.getElementById("exp-proceed").addEventListener("click",()=>{
+    e.classList.remove("show");e.innerHTML="";
+    const a=pendingAction;pendingAction=null;
+    if(a!=null)applyAction(a);
+  });
+}
+function hideExplain(){const e=document.getElementById("explain");e.classList.remove("show");e.innerHTML="";}
 
 function answer(a){
   if(answered||!round||round.phase!=="play")return;
@@ -823,7 +1015,12 @@ function answer(a){
     mistakes.push({id:++mid,player:curHand().cards.slice(),dealer:round.dealer[0],d:round.d,info:{...info},chosen:a,correct,rules:{...rules},resolved:false});
     renderMistakes();
   }
-  setTimeout(()=>applyAction(a),700);   // 判定を見せてから実行
+  if(explainOn()){
+    pendingAction=a;                    // 解説を読んでから「続ける」で進行
+    renderExplain(info,round.d,correct);
+  }else{
+    setTimeout(()=>applyAction(a),700); // 判定を見せてから自動実行
+  }
 }
 
 function applyAction(a){
