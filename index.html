@@ -990,7 +990,7 @@ function renderExplain(info,d,correct){
   document.getElementById("exp-proceed").addEventListener("click",()=>{
     e.classList.remove("show");e.innerHTML="";
     const a=pendingAction;pendingAction=null;
-    if(a!=null)applyAction(a);
+    if(a!=null)commitAction(a);
   });
 }
 function hideExplain(){const e=document.getElementById("explain");e.classList.remove("show");e.innerHTML="";}
@@ -1019,10 +1019,11 @@ function answer(a){
     pendingAction=a;                    // 解説を読んでから「続ける」で進行
     renderExplain(info,round.d,correct);
   }else{
-    setTimeout(()=>applyAction(a),700); // 判定を見せてから自動実行
+    setTimeout(()=>commitAction(a),900); // ①判定を見せる → ②実行結果を見せる → ③次へ
   }
 }
 
+/* applyAction は状態を変えるだけ（描画・進行はしない）。テストからも同期呼び出しできる。 */
 function applyAction(a){
   const h=curHand();
   if(a==="stand")h.done=true;
@@ -1040,7 +1041,30 @@ function applyAction(a){
     if(isAces){h.done=true;nh.done=true;}          // スプリットAは1枚ずつで打ち止め
     round.hands.splice(round.active+1,0,nh);
   }
-  advance();
+}
+/* 実行結果を一拍見せてから次の判断/ディーラーへ進む（引いたカード・結果を認識する「間」を作る） */
+function commitAction(a){
+  const h=curHand();
+  applyAction(a);
+  paintTable();                         // 引いたカード・分割を即描画
+  narrateAction(a,h);                   // 何が起きたかを文で見せる
+  const busted=evaluate(h.cards).total>21;
+  const pause=(a==="stand"||a==="surrender")?700:(a==="split"?900:(busted?1200:1050));
+  setTimeout(advance,pause);
+}
+function narrateAction(a,h){
+  const fb=document.getElementById("feedback");
+  const ev=evaluate(h.cards), last=h.cards[h.cards.length-1], bust=ev.total>21;
+  if(a==="hit")
+    fb.innerHTML=`<span class="detail"><b>${last.rank}</b> を引いて <b>${tagOf(h.cards)}</b>${bust?' <span class="rev-no">— バースト</span>':''}</span>`;
+  else if(a==="double")
+    fb.innerHTML=`<span class="detail">ダブルダウン：<b>${last.rank}</b> を引いて <b>${tagOf(h.cards)}</b>${bust?' <span class="rev-no">— バースト</span>':''}</span>`;
+  else if(a==="split")
+    fb.innerHTML=`<span class="detail">スプリット：2つの手に分けました。左の手からプレイします</span>`;
+  else if(a==="stand")
+    fb.innerHTML=`<span class="detail">スタンド（${tagOf(h.cards)}）— ディーラーの番へ…</span>`;
+  else if(a==="surrender")
+    fb.innerHTML=`<span class="detail">サレンダー — 賭け金の半分を回収して撤退</span>`;
 }
 function advance(){
   const i=round.hands.findIndex(h=>!h.done);
