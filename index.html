@@ -6,6 +6,7 @@
 <title>ブラックジャック トレーナー — 基本戦略＆カードカウンティング練習 | 勝負ラボ</title>
 <meta name="description" content="ブラックジャックの基本戦略（ベーシックストラテジー）とカードカウンティングを無料で練習できる学習ツール。ルール別の戦略表、1手ごとの正誤判定と解説、勝負がつくまでの実践モード、間違いの振り返り付き。仮想チップで学ぶ練習用です。">
 <meta name="robots" content="index,follow">
+<link rel="canonical" href="https://bj.shoubu-lab.com/">
 <meta name="theme-color" content="#123a2e">
 <meta property="og:type" content="website">
 <meta property="og:title" content="ブラックジャック トレーナー — 基本戦略＆カウンティング練習">
@@ -1698,21 +1699,26 @@ syncSegs(); updateStats(); renderMistakes(); setMode("strategy");
 </script>
 
 <script>
-/* 旧URL(github.io)→新ドメイン移行の案内。
-   ★ bj.shoubu-lab.com が稼働したら MIGRATION_ACTIVE を true に変えるだけで有効化される。
-   新ドメイン側では何もしない（自己リダイレクトを防ぐためホスト名で判定）。 */
+/* 旧URL(github.io)→新ドメイン移行の案内（meta refresh 相当＋案内バナー）。
+   ★ bj.shoubu-lab.com が稼働したら MIGRATION_ACTIVE を true に変えるだけで有効化。
+   同一リポジトリを新旧2ホストが配信するため、meta は静的に置けない（新URLが自己リダイレクトしてしまう）。
+   そこでホスト名を判定し、旧URL(github.io)のときだけ meta refresh を注入する。新ドメイン側では何もしない。 */
 (function(){
-  var MIGRATION_ACTIVE=false;                    // ← ドメイン稼働後に true
+  var MIGRATION_ACTIVE=false;                    // ← ドメイン稼働確認後に true
   var NEW_URL="https://bj.shoubu-lab.com/";
   if(!MIGRATION_ACTIVE) return;
-  if(!/(^|\.)github\.io$/.test(location.hostname)) return;   // 新ドメインでは無効
+  if(!/(^|\.)github\.io$/.test(location.hostname)) return;   // 新ドメインでは無効（自己リダイレクト防止）
+  // meta refresh（JS無効環境でも遷移するよう head に注入）
+  var mt=document.createElement("meta");
+  mt.httpEquiv="refresh"; mt.content="5;url="+NEW_URL;
+  document.head.appendChild(mt);
   var bar=document.getElementById("migrate");
-  if(!bar) return;
-  bar.innerHTML='このページは新しいアドレス <a href="'+NEW_URL+'">bj.shoubu-lab.com</a> へ移転しました。まもなく移動します。'+
-    '<button id="mig-go">今すぐ移動</button>';
-  bar.style.display="block";
-  document.getElementById("mig-go").addEventListener("click",function(){location.href=NEW_URL;});
-  setTimeout(function(){location.href=NEW_URL;},6000);
+  if(bar){
+    bar.innerHTML='このページは新しいアドレス <a href="'+NEW_URL+'">bj.shoubu-lab.com</a> へ移転しました。5秒後に自動で移動します。'+
+      '<button id="mig-go">今すぐ移動</button>';
+    bar.style.display="block";
+    document.getElementById("mig-go").addEventListener("click",function(){location.href=NEW_URL;});
+  }
 })();
 </script>
 
