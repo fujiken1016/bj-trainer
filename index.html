@@ -1,6 +1,16 @@
+<!doctype html>
+<html lang="ja">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ブラックジャック トレーナー — 戦略 & カウンティング</title>
+<title>ブラックジャック トレーナー — 基本戦略＆カードカウンティング練習 | 勝負ラボ</title>
+<meta name="description" content="ブラックジャックの基本戦略（ベーシックストラテジー）とカードカウンティングを無料で練習できる学習ツール。ルール別の戦略表、1手ごとの正誤判定と解説、勝負がつくまでの実践モード、間違いの振り返り付き。仮想チップで学ぶ練習用です。">
+<meta name="robots" content="index,follow">
+<meta name="theme-color" content="#123a2e">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ブラックジャック トレーナー — 基本戦略＆カウンティング練習">
+<meta property="og:description" content="無料で使えるブラックジャック基本戦略・カウンティングの学習ツール。仮想チップで戦略を学ぶ練習用です。">
+<meta property="og:site_name" content="勝負ラボ">
 <style>
   :root{
     --felt:#123a2e; --felt-2:#0d2c22; --felt-line:#1c5240; --felt-hi:#1a5241;
@@ -377,7 +387,23 @@
   .cfeed b{color:var(--gold)}
   .cactions{display:flex; gap:10px; justify-content:center; flex-wrap:wrap}
   .foot{font-size:11px; color:var(--ink-dim); text-align:center}
+  /* サイト共通フッター（法務ページ導線） */
+  .sitefoot{max-width:760px; margin:34px auto 0; padding:20px 16px 0; border-top:1px solid var(--border); text-align:center}
+  .sf-links{display:flex; gap:12px 22px; flex-wrap:wrap; justify-content:center; margin-bottom:12px}
+  .sf-links a{color:var(--ink-dim); text-decoration:none; font-size:12.5px}
+  .sf-links a:hover{color:var(--gold)}
+  .sf-note{font-size:11.5px; color:var(--ink-dim); line-height:1.7; max-width:520px; margin:0 auto 10px}
+  .sf-cw{font-size:11px; color:var(--ink-dim); opacity:.7; letter-spacing:.04em}
+  /* 移行案内バナー（旧URLのみ・既定は非表示） */
+  #migrate{display:none; position:sticky; top:0; z-index:200; background:var(--gold); color:#241f10;
+    font-family:var(--ui); font-weight:700; font-size:13px; text-align:center; padding:10px 14px; line-height:1.5}
+  #migrate a{color:#241f10; text-decoration:underline; font-weight:800}
+  #migrate button{margin-left:10px; background:#241f1020; border:0; color:#241f10; font-weight:800; padding:4px 10px; border-radius:6px; cursor:pointer}
 </style>
+</head>
+<body>
+
+<div id="migrate"></div>
 
 <div class="app"><div class="wrap">
 
@@ -657,6 +683,16 @@
     </div>
   </div>
 
+  <footer class="sitefoot">
+    <div class="sf-links">
+      <a href="privacy.html">プライバシーポリシー</a>
+      <a href="disclaimer.html">免責事項</a>
+      <a href="operator.html">運営者情報</a>
+      <a href="contact.html">お問い合わせ</a>
+    </div>
+    <div class="sf-note">仮想チップで戦略を学ぶ学習ツールです。実際の金銭を賭ける賭博を推奨するものではありません。</div>
+    <div class="sf-cw">© 2026 勝負ラボ（Shoubu Lab）</div>
+  </footer>
 </div></div>
 
 <script>
@@ -1660,3 +1696,25 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelect
 /* ============ INIT ============ */
 syncSegs(); updateStats(); renderMistakes(); setMode("strategy");
 </script>
+
+<script>
+/* 旧URL(github.io)→新ドメイン移行の案内。
+   ★ bj.shoubu-lab.com が稼働したら MIGRATION_ACTIVE を true に変えるだけで有効化される。
+   新ドメイン側では何もしない（自己リダイレクトを防ぐためホスト名で判定）。 */
+(function(){
+  var MIGRATION_ACTIVE=false;                    // ← ドメイン稼働後に true
+  var NEW_URL="https://bj.shoubu-lab.com/";
+  if(!MIGRATION_ACTIVE) return;
+  if(!/(^|\.)github\.io$/.test(location.hostname)) return;   // 新ドメインでは無効
+  var bar=document.getElementById("migrate");
+  if(!bar) return;
+  bar.innerHTML='このページは新しいアドレス <a href="'+NEW_URL+'">bj.shoubu-lab.com</a> へ移転しました。まもなく移動します。'+
+    '<button id="mig-go">今すぐ移動</button>';
+  bar.style.display="block";
+  document.getElementById("mig-go").addEventListener("click",function(){location.href=NEW_URL;});
+  setTimeout(function(){location.href=NEW_URL;},6000);
+})();
+</script>
+
+</body>
+</html>
