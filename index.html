@@ -395,16 +395,9 @@
   .sf-links a:hover{color:var(--gold)}
   .sf-note{font-size:11.5px; color:var(--ink-dim); line-height:1.7; max-width:520px; margin:0 auto 10px}
   .sf-cw{font-size:11px; color:var(--ink-dim); opacity:.7; letter-spacing:.04em}
-  /* 移行案内バナー（旧URLのみ・既定は非表示） */
-  #migrate{display:none; position:sticky; top:0; z-index:200; background:var(--gold); color:#241f10;
-    font-family:var(--ui); font-weight:700; font-size:13px; text-align:center; padding:10px 14px; line-height:1.5}
-  #migrate a{color:#241f10; text-decoration:underline; font-weight:800}
-  #migrate button{margin-left:10px; background:#241f1020; border:0; color:#241f10; font-weight:800; padding:4px 10px; border-radius:6px; cursor:pointer}
 </style>
 </head>
 <body>
-
-<div id="migrate"></div>
 
 <div class="app"><div class="wrap">
 
@@ -1696,30 +1689,6 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelect
 
 /* ============ INIT ============ */
 syncSegs(); updateStats(); renderMistakes(); setMode("strategy");
-</script>
-
-<script>
-/* 旧URL(github.io)→新ドメイン移行の案内（meta refresh 相当＋案内バナー）。
-   ★ bj.shoubu-lab.com が稼働したら MIGRATION_ACTIVE を true に変えるだけで有効化。
-   同一リポジトリを新旧2ホストが配信するため、meta は静的に置けない（新URLが自己リダイレクトしてしまう）。
-   そこでホスト名を判定し、旧URL(github.io)のときだけ meta refresh を注入する。新ドメイン側では何もしない。 */
-(function(){
-  var MIGRATION_ACTIVE=true;                     // 2026-08-02 bj.shoubu-lab.com 稼働確認済み・有効化
-  var NEW_URL="https://bj.shoubu-lab.com/";
-  if(!MIGRATION_ACTIVE) return;
-  if(!/(^|\.)github\.io$/.test(location.hostname)) return;   // 新ドメインでは無効（自己リダイレクト防止）
-  // meta refresh（JS無効環境でも遷移するよう head に注入）
-  var mt=document.createElement("meta");
-  mt.httpEquiv="refresh"; mt.content="5;url="+NEW_URL;
-  document.head.appendChild(mt);
-  var bar=document.getElementById("migrate");
-  if(bar){
-    bar.innerHTML='このページは新しいアドレス <a href="'+NEW_URL+'">bj.shoubu-lab.com</a> へ移転しました。5秒後に自動で移動します。'+
-      '<button id="mig-go">今すぐ移動</button>';
-    bar.style.display="block";
-    document.getElementById("mig-go").addEventListener("click",function(){location.href=NEW_URL;});
-  }
-})();
 </script>
 
 </body>
