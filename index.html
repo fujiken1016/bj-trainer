@@ -1704,7 +1704,7 @@ syncSegs(); updateStats(); renderMistakes(); setMode("strategy");
    同一リポジトリを新旧2ホストが配信するため、meta は静的に置けない（新URLが自己リダイレクトしてしまう）。
    そこでホスト名を判定し、旧URL(github.io)のときだけ meta refresh を注入する。新ドメイン側では何もしない。 */
 (function(){
-  var MIGRATION_ACTIVE=false;                    // ← ドメイン稼働確認後に true
+  var MIGRATION_ACTIVE=true;                     // 2026-08-02 bj.shoubu-lab.com 稼働確認済み・有効化
   var NEW_URL="https://bj.shoubu-lab.com/";
   if(!MIGRATION_ACTIVE) return;
   if(!/(^|\.)github\.io$/.test(location.hostname)) return;   // 新ドメインでは無効（自己リダイレクト防止）
