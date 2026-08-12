@@ -395,6 +395,23 @@
   .sf-links a:hover{color:var(--gold)}
   .sf-note{font-size:11.5px; color:var(--ink-dim); line-height:1.7; max-width:520px; margin:0 auto 10px}
   .sf-cw{font-size:11px; color:var(--ink-dim); opacity:.7; letter-spacing:.04em}
+  /* 学びを深める本（アフィリエイト書籍紹介） */
+  .books{max-width:760px; margin:34px auto 0; padding:22px 18px; background:var(--panel); border:1px solid var(--border); border-radius:14px}
+  .books-head{display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin-bottom:7px}
+  .books-head h2{font-family:var(--serif); font-weight:600; font-size:19px; color:var(--gold); margin:0}
+  .pr-badge{font-size:10px; letter-spacing:.1em; color:var(--ink-dim); border:1px solid var(--border); border-radius:20px; padding:2px 9px}
+  .books-lead{font-size:13px; color:var(--ink-dim); line-height:1.85; margin:0 0 16px}
+  .books-lead b{color:var(--ink)}
+  .book-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:12px}
+  .book{display:flex; flex-direction:column; gap:5px; background:#00000026; border:1px solid var(--border); border-radius:12px; padding:14px 15px}
+  .book .bt{font-family:var(--serif); font-size:15px; color:#f2ecdc; line-height:1.45}
+  .book .ba{font-size:11px; color:var(--ink-dim)}
+  .book .bd{font-size:12.5px; color:var(--ink); line-height:1.75; flex:1; margin:2px 0 4px}
+  .book .bl{align-self:flex-start; background:#cba24c1f; border:1px solid var(--gold-dim); color:var(--gold);
+    text-decoration:none; font-weight:700; font-size:12.5px; padding:8px 15px; border-radius:8px; transition:background .15s,color .15s}
+  .book .bl:hover{background:var(--gold); color:#241f10}
+  .books-disc{font-size:10.5px; color:var(--ink-dim); opacity:.85; margin-top:15px; line-height:1.75}
+  @media (max-width:560px){ .books{padding:18px 14px} .book-grid{grid-template-columns:1fr} }
 </style>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-2VF02QTTNV"></script>
@@ -684,6 +701,39 @@
       <div class="foot">ランニング=場全体の累計。連続配りモードは最後にRCを入力。タグ付けは1枚ずつ ±を押して反射を鍛える。</div>
     </div>
   </div>
+
+  <!-- ===== 学びを深める本（楽天アフィリエイト・書籍のみ／賭博系リンクは掲載しない） ===== -->
+  <section class="books" id="books" aria-label="学びを深める本">
+    <div class="books-head">
+      <h2>📚 学びを深める本</h2>
+      <span class="pr-badge">広告・PR</span>
+    </div>
+    <p class="books-lead">ブラックジャックは運ではなく<b>確率と期待値</b>のゲームです。その数学的な背景をより深く学べる定番書を紹介します。<br>（当サイトは書籍・学習コンテンツのみを紹介し、オンラインカジノ等の賭博サービスへの誘導は一切行いません。）</p>
+    <div class="book-grid">
+      <article class="book">
+        <div class="bt">ディーラーをやっつけろ！</div>
+        <div class="ba">エドワード・O・ソープ ／ パンローリング</div>
+        <div class="bd">数学者がブラックジャックを確率で解き明かした古典。カードカウンティングの原点で、「期待値で考える」感覚が身につく一冊。</div>
+        <!-- TODO(楽天アフィリID): 下記URLをアフィリンクに差し替え。現状はプレーンな楽天検索リンク（機能する・非課金） -->
+        <a class="bl" href="https://search.rakuten.co.jp/search/mall/%E3%83%87%E3%82%A3%E3%83%BC%E3%83%A9%E3%83%BC%E3%82%92%E3%82%84%E3%81%A3%E3%81%A4%E3%81%91%E3%82%8D/" target="_blank" rel="nofollow sponsored noopener">楽天で見る ▸</a>
+      </article>
+      <article class="book">
+        <div class="bt">ベーシックストラテジーを体系的に</div>
+        <div class="ba">ブラックジャック戦略ガイド（各種）</div>
+        <div class="bd">ルール別の最適プレイ（ヒット／スタンド／ダブル／スプリット）を体系立てて解説した戦略書。本アプリの戦略表と併せて理解が深まる。</div>
+        <a class="bl" href="https://search.rakuten.co.jp/search/mall/%E3%83%96%E3%83%A9%E3%83%83%E3%82%AF%E3%82%B8%E3%83%A3%E3%83%83%E3%82%AF%20%E3%83%99%E3%83%BC%E3%82%B7%E3%83%83%E3%82%AF%E3%82%B9%E3%83%88%E3%83%A9%E3%83%86%E3%82%B8%E3%83%BC/" target="_blank" rel="nofollow sponsored noopener">楽天で見る ▸</a>
+      </article>
+      <article class="book">
+        <div class="bt">リスク 神々への反逆</div>
+        <div class="ba">ピーター・バーンスタイン ／ 日本経済新聞出版</div>
+        <div class="bd">確率とリスクの考え方の歴史をたどる名著。「不確実性とどう向き合うか」を学べ、戦略的思考の土台になる。</div>
+        <a class="bl" href="https://search.rakuten.co.jp/search/mall/%E3%83%AA%E3%82%B9%E3%82%AF%20%E7%A5%9E%E3%80%85%E3%81%B8%E3%81%AE%E5%8F%8D%E9%80%86/" target="_blank" rel="nofollow sponsored noopener">楽天で見る ▸</a>
+      </article>
+    </div>
+    <!-- NOTE導線スロット：将来ここに「もっと詳しい攻略記事（note）」への導線を入れる。今は空（位置だけ確保）。 -->
+    <div id="note-cta" hidden></div>
+    <p class="books-disc">※ 本セクションは楽天アフィリエイトプログラムを利用しています。リンクから商品を購入されると、運営者に紹介料が支払われることがあります。価格・在庫は各販売ページをご確認ください。</p>
+  </section>
 
   <footer class="sitefoot">
     <div class="sf-links">
