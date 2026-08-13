@@ -4,7 +4,7 @@
 
 ## 公開
 - 新（本番）: https://bj.shoubu-lab.com  … Cloudflare Pages（このリポジトリを接続）
-- 旧: https://fujiken1016.github.io/bj-trainer/ … GitHub Pages（移行案内あり）
+- 旧: GitHub Pages の旧URL（移行案内あり）
 
 ## 構成
 - `index.html` … アプリ本体（ルール / ストラテジー / 実践 / カウンティング）＋法務ページ導線フッター
