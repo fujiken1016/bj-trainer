@@ -1,2 +1,0 @@
-# 運用ドキュメントを公開URLから外す（実測テスト A: _redirects の明示404）
-/README.md  /404.html  404
