@@ -18,3 +18,19 @@
 - 全リンクに `target="_blank" rel="nofollow sponsored noopener"` を維持
 - セクション冒頭の「広告・PR」バッジと末尾の楽天アフィリ開示文は削除しない
 - push で自動デプロイ（リポジトリ直下の index.html がそのまま公開物）
+
+---
+
+## 🔴 楽天リンクを追加するときは必ず「計測ID」を入れる（2026-09-03 制定）
+
+このサイトの計測ID＝**`_RTLink143605`（bj）**。
+
+形式（アフィリID の直後にパスセグメントとして入れる）：
+
+```
+https://hb.afl.rakuten.co.jp/ichiba/{アフィリID}/_RTLink143605?pc={URLエンコードした商品URL}&link_type=text
+```
+
+- `/hgc/` 形式でも同じ位置に入れれば有効（302 で `/ichiba/` へ引き継がれる。2026-09-03 実測）
+- **これが無いと楽天のサイト別レポートに載らず、どのサイトの成果か永久に分からなくなる**
+- 全サイトのID対応表と発行手順＝`~/Desktop/claude/affiliate_links.md` の「楽天 計測ID（site_pointback_id）」節
