@@ -18,8 +18,8 @@
     --ivory:#f4efe3; --card-ink:#20201d; --card-red:#b23b34;
     --ink:#eae5d6; --ink-dim:#a7b3a4;
     --gold:#cba24c; --gold-dim:#8f7a3c;
-    --good:#3f9b5b; --good-hi:#5ec37e;
-    --bad:#c6493b; --bad-hi:#e07567;
+    --good:#2f7d49; --good-hi:#5ec37e;
+    --bad:#a93a2e; --bad-hi:#e07567;
     --cell-h:#2f7d5b; --cell-s:#b1463a; --cell-d:#c99a3c; --cell-p:#6f5aa6; --cell-r:#5f6b6a;
     --panel:#16473818; --border:#ffffff1f;
     --shadow:0 10px 30px #00000055;
@@ -449,6 +449,110 @@
 .sl-tools__d{font-size:14px;line-height:1.8;color:var(--slt-sub);}
 @media(max-width:420px){.sl-tools__list{grid-template-columns:1fr;}}
 </style>
+<style id="y-youth">
+/* === 若者向けの型（K30・2026-10-19 週次デザイン）：文字は14px以上・面で浮かせる・主役の画 === */
+:root{--gold-dim:#c9ad66;--ink-dim:#b9c4b6}
+.title .sub,
+.stat .l,
+.modetabs button .s,
+.rgroup > .lab,
+.info,
+.info .tip,
+.seg button,
+.fbnote,
+.preset,
+.rlabel,
+.table-mid .arc,
+.phands.multi .card .rk,
+.phands.multi .card .st,
+.phands.multi .handtag,
+.rbadge,
+.modetabs button,
+.psummary .pcell .pl,
+.dchip,
+.expbar .sub,
+.act,
+.act .key,
+.feedback .detail,
+.expbar .lead,
+.explain .eh .badge,
+.explain li,
+.explain .counter,
+.psummary .pcell .wl,
+.prev-head,
+.pl-filter,
+.plrow .mk,
+.plrow .plact,
+.plrow .rnd,
+.situation .cap,
+table.sc th,
+table.sc td,
+.minilegend,
+.rev-head,
+.rev-clear,
+.rev-empty,
+.rev-item,
+.rev-ctx,
+.rev-retry,
+details.full summary,
+details.full summary .hint,
+.ctitle,
+.rsec h3 .num,
+.rsec p,
+.rtable,
+.rtable th,
+.keypt,
+.dzone .rlabel,
+.demofelt .card .st,
+.dnote,
+.dnote .who,
+.dbtn,
+.dprog,
+.hilo,
+.subtabs button,
+.cControls label,
+.cControls .val,
+.chk,
+.progress,
+.tag .k,
+.foot,
+.sf-links a,
+.sf-note,
+.sf-cw,
+.pr-badge,
+.books-lead,
+.book .ba,
+.book .bd,
+.book .bl,
+.books-disc{font-size:14px}
+.stat .n.acc,.title .sub{color:var(--gold)}
+.title h1{font-family:var(--ui);font-weight:700;font-size:clamp(26px,7vw,32px);line-height:1.35;letter-spacing:.01em;word-break:auto-phrase;text-wrap:balance;line-break:strict}
+header.hd{display:block;text-align:center}
+.title{align-items:center}
+.stats{margin-top:14px}
+.stat{border:0;background:#0d2c22;border-radius:16px;border-bottom:4px solid #1c5240}
+.hero-fan{display:flex;justify-content:center;align-items:flex-end;margin:6px 0 12px;gap:0}
+.hero-fan span{display:grid;place-items:center;width:58px;height:80px;margin:0 -8px;border-radius:12px;background:var(--ivory);color:var(--card-ink);font-size:30px;font-weight:700;line-height:1;box-shadow:0 4px 0 #06150f}
+.hero-fan .r{color:var(--card-red)}
+.hero-fan span:nth-child(1){transform:rotate(-9deg) translateY(4px)}
+.hero-fan span:nth-child(2){transform:rotate(7deg) translateY(2px)}
+.hero-fan b{align-self:center;margin-left:22px;font-size:34px;font-weight:700;color:var(--gold);line-height:1}
+.modetabs{background:transparent;border:0;padding:0;gap:8px}
+.modetabs button{min-height:56px;background:#0d2c22;border-radius:16px;border-bottom:4px solid #1c5240;color:var(--ink)}
+.modetabs button[aria-selected="true"]{background:var(--gold);color:#241f10;border-bottom-color:#8f7a3c}
+.modetabs button[aria-selected="true"]::before{content:"✓ "}
+.rules,.panel{border:0;border-radius:24px}
+.btn{font-weight:700;min-height:48px;border-radius:16px;border-bottom:4px solid rgba(0,0,0,.35);transition:transform .08s,border-bottom-width .08s}
+.btn:active:not(:disabled){transform:translateY(3px);border-bottom-width:1px}
+.btn.gold{border-bottom-color:#8f7a3c}
+.act{min-height:56px;border-radius:16px}
+.seg button,.preset,.dchip,.subtabs button{min-height:44px}
+.badge,.dbtn,.mk,.num,.rbadge{font-weight:700}
+.rev-retry:disabled{background:#2f7d49}
+.info::after{content:"";position:absolute;inset:-12px}
+.rev-clear{min-height:44px;padding:0 14px}
+@media (prefers-reduced-motion:reduce){.btn{transition:none}}
+</style>
 </head>
 <body>
 
@@ -456,6 +560,7 @@
 
   <header class="hd">
     <div class="title">
+      <div class="hero-fan" aria-hidden="true"><span>A<small style="font-size:14px">♠</small></span><span class="r">K<small style="font-size:14px">♥</small></span><b>21</b></div>
       <span class="sub">Blackjack Trainer</span>
       <h1>ブラックジャック トレーナー</h1>
     </div>
@@ -644,7 +749,7 @@
     <div id="panel-strategy">
       <div class="situation" id="situation"></div>
 
-      <div class="nextbar"><button class="next" id="next-s" disabled>次の手 ▸ <span style="font-size:10px">(N)</span></button></div>
+      <div class="nextbar"><button class="next" id="next-s" disabled>次の手 ▸ <span style="font-size:14px">(N)</span></button></div>
 
       <details class="full" id="fullchart" style="margin-top:18px">
         <summary><span>全戦略表を見る（参考）</span><span class="hint">通常はハンドごとの表だけ表示されます</span></summary>
@@ -673,7 +778,7 @@
 
     <!-- ===== 実践専用パネル（勝負がつくまで＋振り返り） ===== -->
     <div id="panel-play" class="hidden">
-      <div class="nextbar"><button class="next" id="next-p" disabled>次のラウンド ▸ <span style="font-size:10px">(N)</span></button></div>
+      <div class="nextbar"><button class="next" id="next-p" disabled>次のラウンド ▸ <span style="font-size:14px">(N)</span></button></div>
       <div class="psession">
         <div class="psummary" id="psummary"></div>
         <div class="prev-head">
@@ -696,8 +801,8 @@
       </div>
 
       <div class="subtabs" id="subtabs">
-        <button data-s="running" aria-selected="true">ランニングカウント<br><span style="font-weight:500;font-size:10px">連続で配ってカウント</span></button>
-        <button data-s="tag" aria-selected="false">1枚タグ付け<br><span style="font-weight:500;font-size:10px">±の反射神経</span></button>
+        <button data-s="running" aria-selected="true">ランニングカウント<br><span style="font-weight:500;font-size:14px">連続で配ってカウント</span></button>
+        <button data-s="tag" aria-selected="false">1枚タグ付け<br><span style="font-weight:500;font-size:14px">±の反射神経</span></button>
       </div>
 
       <div class="cControls">
@@ -716,7 +821,7 @@
           <button class="tag" data-v="1">+1<span class="k">3</span></button>
         </div>
         <div class="countinput hidden" id="countinput">
-          <span style="color:var(--ink-dim);font-size:13px">RC</span>
+          <span style="color:var(--ink-dim);font-size:14px">RC</span>
           <input type="number" id="rcInput" inputmode="numeric" placeholder="?">
           <button class="btn gold" id="checkBtn">判定</button>
         </div>
@@ -1393,9 +1498,9 @@ function updatePlaySummary(){
   const acc=decisions?Math.round(good/decisions*100)+"%":"—";
   document.getElementById("psummary").innerHTML=
     `<div class="pcell"><div class="pn">${played}</div><div class="pl">ラウンド</div></div>`+
-    `<div class="pcell"><div class="pn">${wStat.win}<span style="font-size:12px;color:var(--ink-dim)">-${wStat.lose}-${wStat.push}</span></div><div class="pl">勝-負-分</div></div>`+
+    `<div class="pcell"><div class="pn">${wStat.win}<span style="font-size:14px;color:var(--ink-dim)">-${wStat.lose}-${wStat.push}</span></div><div class="pl">勝-負-分</div></div>`+
     `<div class="pcell acc"><div class="pn">${acc}</div><div class="pl">戦略正解率</div></div>`+
-    `<div class="pcell"><div class="pn">${good}<span style="font-size:12px;color:var(--ink-dim)">/${decisions}</span></div><div class="pl">正しい判断</div></div>`;
+    `<div class="pcell"><div class="pn">${good}<span style="font-size:14px;color:var(--ink-dim)">/${decisions}</span></div><div class="pl">正しい判断</div></div>`;
 }
 function renderPlayReview(){
   document.getElementById("pl-count").textContent=playLog.length;
@@ -1411,7 +1516,7 @@ function renderPlayReview(){
       ?`<span class="you">${jp[p.chosen]}</span>`
       :`<span class="you">あなた: ${jp[p.chosen]}</span> → <span class="cor">${jp[p.correct]}</span>`;
     div.innerHTML=`<span class="mk">${p.ok?"✓":"✕"}</span>`+
-      `<span class="plhand">${p.hand} <span style="color:var(--ink-dim);font-size:12px">vs ${dealerLabel(p.d)}</span></span>`+
+      `<span class="plhand">${p.hand} <span style="color:var(--ink-dim);font-size:14px">vs ${dealerLabel(p.d)}</span></span>`+
       `<span class="plact">${act}</span>`;
     list.appendChild(div);
   });
