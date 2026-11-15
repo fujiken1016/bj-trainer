@@ -746,7 +746,8 @@ header.hd{display:block;text-align:center}
       <div class="rgroup"><span class="lab">サレンダー<button class="info" type="button" aria-label="サレンダーの説明">i<span class="tip"><b>降参して賭け金の半分を返してもらう</b>ルール。<br><b>なし</b>＝不可。<br><b>レイト</b>＝ディーラーのBJ確認<u>後</u>に降参（標準・約+0.08%有利）。<br><b>アーリー</b>＝確認<u>前</u>に降参できる。激レアだが約<b>+0.6%</b>と大幅有利で、10・A相手に広く降りる。</span></button></span><div class="seg" id="seg-sur"><button data-v="none">なし</button><button data-v="late">レイト</button><button data-v="early">アーリー</button></div></div>
       <div class="rgroup"><span class="lab">DAS<button class="info" type="button" aria-label="DASの説明">i<span class="tip"><b>DAS＝Double After Split</b>。スプリットした後の手にダブルできるか。<br>例: <b>8,8</b>を分けて片方に3が来て<b>11</b>→ここでダブル可能か。<br><b>あり</b>で約<b>+0.14%</b>有利。<br><b>なし</b>だとスプリットを控える（<b>4,4は割らない</b>／2,2・3,3は4〜7のみ／6,6は3〜6のみ）。</span></button></span><div class="seg" id="seg-das"><button data-v="on">あり</button><button data-v="off">なし</button></div></div>
       <div class="rgroup"><span class="lab">デッキ<button class="info" type="button" aria-label="デッキ数の説明">i<span class="tip"><b>使用デッキ数。</b>少ないほどプレイヤー有利（1→8で約+0.5%ハウス寄り）。<br><b>4-8</b>は戦略表が同じ。<br><b>1・2デッキ</b>はカード除去の影響が強く一部のマスが変わる（例: 1デッキは<b>11 vs A もダブル</b>、hard8 vs5,6もダブル、7,7 vs10はスタンド）。</span></button></span><div class="seg" id="seg-deck"><button data-v="1">1</button><button data-v="2">2</button><button data-v="6">4-8</button></div></div>
-      <div class="rgroup"><span class="lab">ホールカード<button class="info" type="button" aria-label="ホールカードの説明">i<span class="tip"><b>ディーラーの伏せ札の扱い。</b>ディーラーがBJの時、<u>ダブル/スプリットの追加分まで取られるか</u>が変わる。<br><b>ピーク</b>＝先にBJを確認。損は元ベットのみ（標準）。<br><b>ENHC</b>＝伏せ札なし。ディーラーBJだと<b>追加分も全没収</b>→<b>10・Aにダブル/スプリットしない</b>（11vs10/Aはヒット、8,8vsAはヒット）。<br><b>OBO</b>＝伏せ札なしだが追加分は返却されるので、<b>戦略はピークと同じ</b>。</span></button></span><div class="seg" id="seg-hole"><button data-v="peek">ピーク</button><button data-v="enhc">ENHC</button><button data-v="obo">OBO</button></div></div>
+      <div class="rgroup"><span class="lab">ホールカード<button class="info" type="button" aria-label="ホールカードの説明">i<span class="tip"><b>ディーラーの伏せ札の扱い。</b>ディーラーがBJの時、<u>ダブル/スプリットの追加分まで取られるか</u>が変わる。<br><b>ピーク</b>＝先にBJを確認。損は元ベットのみ（標準）。<br><b>ENHC</b>＝伏せ札なし。ディーラーBJだと<b>追加分も全没収</b>→<b>10・Aに対してダブルを控え、スプリットも絞る</b>（11 vs 10/A と 8,8 vs 10/A はヒット、A,A は A に対してだけヒット）。判定できるのは Wizard of Odds の表がある「欧州ENHC」プリセット（6デッキ・S17・ダブル9〜11・DAS）だけです。<br><b>OBO</b>＝伏せ札なしだが追加分は返却されるルール。<b>判定表は準備中</b>です。</span></button></span><div class="seg" id="seg-hole"><button data-v="peek">ピーク</button><button data-v="enhc">ENHC</button><button data-v="obo" disabled aria-disabled="true" title="判定表を準備中">OBO（準備中）</button></div></div>
+      <div class="fbnote" id="rule-pending" role="status"></div>
     </div>
     </details>
     <div class="fbnote" id="fbnote" style="margin-bottom:18px">Free Bet（6デッキ・H17・Push22 固定／Wizard of Odds 実ベット表準拠）：フリーダブル<b>9/10/11</b>とフリースプリット<b>10以外の全ペア</b>は常に実行（<b>5,5はダブル・10,10はスタンド</b>）。ソフトは<b>A,2〜A,4は常にヒット</b>。ディーラー22はプッシュ。<b>サレンダー</b>はテーブル次第なので左のトグルで切替可。他トグルは無効。</div>
@@ -797,6 +798,7 @@ header.hd{display:block;text-align:center}
             <span><i style="background:var(--cell-d)"></i>ダブル</span><span><i style="background:var(--cell-p)"></i>スプリット</span>
             <span><i style="background:var(--cell-r)"></i>サレンダー</span>
           </div>
+          <p class="note" style="margin:0 0 10px">出典：Wizard of Odds の基本戦略表（1デッキ・2デッキ・4〜8デッキ、S17/H17別。欧州ENHCは同サイトの European 表、アーリーサレンダーは同サイトの Surrender のページ）。2026年11月16日に取得し、選べるルールの組み合わせすべてで全マスを照合しました。OBOなど表で確認できないルールは準備中です。</p>
           <div class="fullcols">
             <div><div class="ctitle">ハード</div><div id="tbl-hard"></div></div>
             <div><div class="ctitle">ソフト（A含む）</div><div id="tbl-soft"></div></div>
@@ -957,113 +959,66 @@ const canDouble=h=>{
 const canSurr=h=>rules.surrender!=="none"&&h.initial!==false&&!h.fromSplit;
 
 /* ============ STRATEGY ENGINE ============ */
-// base = 4〜8デッキ / peek / サレンダー無し（サレンダーは surrenderAdjust で付与）
-function hardCode(t,d){
-  if(t<=8)return"H";
-  if(t===9)return(d>=3&&d<=6)?"D":"H";
-  if(t===10)return(d>=2&&d<=9)?"D":"H";
-  if(t===11)return rules.soft17==="H17"?"D":(d<=10?"D":"H");
-  if(t===12)return(d>=4&&d<=6)?"S":"H";
-  if(t>=13&&t<=16)return(d>=2&&d<=6)?"S":"H";
-  return"S"; // 17+
+// 出典（2026-11-16 取得・J542 で全セル突合済み）:
+//   Wizard of Odds 基本戦略表 https://wizardofodds.com/games/blackjack/strategy/1-deck/ ・/2-decks/ ・/4-decks/（4〜8デッキ）
+//   ENHC（欧州・ノーホールカード）https://wizardofodds.com/games/blackjack/strategy/european/（6D・S17・DAS・ダブル9-11のみの表）
+//   アーリーサレンダー https://wizardofodds.com/games/blackjack/surrender/ の「Early Surrender」一覧
+// 表の記号は WoO の凡例どおり: D=ダブル可能ならダブル/不可ならヒット、Ds=…/不可ならスタンド、
+//   Ph/Pd/Ps=DASありならスプリット/なしならヒット・ダブル・スタンド、Rh/Rs/Rp=サレンダー可能ならサレンダー/不可ならヒット・スタンド・スプリット、
+//   Rp2=（2デッキH17の8,8 vs A）サレンダー可能かつDASなしならサレンダー/それ以外はスプリット。
+// 5,5 と 10,10 は表に行が無いのでハードの10・20として引く（WoO の注記どおり）。列はディーラー 2,3,…,10,A。
+// 自己検査: bj_tools/verify_engine.js（全85ルール×610セルを WoO 表と突合。食い違い0で終了コード0）
+const WOO={"1S":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H D D H H H H H","9":"D D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D D","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H H H","16":"S S S S S H H H Rh Rh","17":"S S S S S S S S S S","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H D D D H H H H H","14":"H H D D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"D D D D D H H H H H","18":"S Ds Ds Ds Ds S S H H S","19":"S S S S Ds S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph P P P P P H H H H","3":"Ph Ph P P P P Ph H H H","4":"H H Ph Pd Pd H H H H H","6":"P P P P P Ph H H H H","7":"P P P P P P Ph H Rs H","8":"P P P P P P P P P P","9":"P P P P P S P P S S","11":"P P P P P P P P P P"}},"1H":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H D D H H H H H","9":"D D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D D","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H H Rh","16":"S S S S S H H H Rh Rh","17":"S S S S S S S S S Rs","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H D D D H H H H H","14":"H H D D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"D D D D D H H H H H","18":"S Ds Ds Ds Ds S S H H H","19":"S S S S Ds S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph P P P P P H H H H","3":"Ph Ph P P P P Ph H H H","4":"H H Ph Pd Pd H H H H H","6":"P P P P P Ph H H H H","7":"P P P P P P Ph H Rs Rh","8":"P P P P P P P P P P","9":"P P P P P S P P S Ps","11":"P P P P P P P P P P"}},"2S":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H H H H H H H H","9":"D D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D D","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H Rh H","16":"S S S S S H H H Rh Rh","17":"S S S S S S S S S S","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H H D D H H H H H","14":"H H H D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"H D D D D H H H H H","18":"S Ds Ds Ds Ds S S H H H","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph Ph P P P P H H H H","3":"Ph Ph P P P P H H H H","4":"H H H Ph Ph H H H H H","6":"P P P P P Ph H H H H","7":"P P P P P P Ph H H H","8":"P P P P P P P P P P","9":"P P P P P S P P S S","11":"P P P P P P P P P P"}},"2H":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H H H H H H H H","9":"D D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D D","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H Rh Rh","16":"S S S S S H H H Rh Rh","17":"S S S S S S S S S Rs","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H H D D H H H H H","14":"H H D D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"H D D D D H H H H H","18":"Ds Ds Ds Ds Ds S S H H H","19":"S S S S Ds S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph Ph P P P P H H H H","3":"Ph Ph P P P P H H H H","4":"H H H Ph Ph H H H H H","6":"P P P P P Ph H H H H","7":"P P P P P P Ph H H H","8":"P P P P P P P P P Rp2","9":"P P P P P S P P S S","11":"P P P P P P P P P P"}},"6S":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H H H H H H H H","9":"H D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D H","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H Rh H","16":"S S S S S H H Rh Rh Rh","17":"S S S S S S S S S S","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H H D D H H H H H","14":"H H H D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"H D D D D H H H H H","18":"S Ds Ds Ds Ds S S H H H","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph Ph P P P P H H H H","3":"Ph Ph P P P P H H H H","4":"H H H Ph Ph H H H H H","6":"Ph P P P P H H H H H","7":"P P P P P P H H H H","8":"P P P P P P P P P P","9":"P P P P P S P P S S","11":"P P P P P P P P P P"}},"6H":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H H H H H H H H","9":"H D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D D D","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H Rh Rh","16":"S S S S S H H Rh Rh Rh","17":"S S S S S S S S S Rs","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H H D D H H H H H","14":"H H H D D H H H H H","15":"H H D D D H H H H H","16":"H H D D D H H H H H","17":"H D D D D H H H H H","18":"Ds Ds Ds Ds Ds S S H H H","19":"S S S S Ds S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"Ph Ph P P P P H H H H","3":"Ph Ph P P P P H H H H","4":"H H H Ph Ph H H H H H","6":"Ph P P P P H H H H H","7":"P P P P P P H H H H","8":"P P P P P P P P P Rp","9":"P P P P P S P P S S","11":"P P P P P P P P P P"}},"EURO":{"hard":{"4":"H H H H H H H H H H","5":"H H H H H H H H H H","6":"H H H H H H H H H H","7":"H H H H H H H H H H","8":"H H H H H H H H H H","9":"H D D D D H H H H H","10":"D D D D D D D D H H","11":"D D D D D D D D H H","12":"H H S S S H H H H H","13":"S S S S S H H H H H","14":"S S S S S H H H H H","15":"S S S S S H H H H H","16":"S S S S S H H H H H","17":"S S S S S S S S S S","18":"S S S S S S S S S S","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"soft":{"13":"H H H H H H H H H H","14":"H H H H H H H H H H","15":"H H H H H H H H H H","16":"H H H H H H H H H H","17":"H H H H H H H H H H","18":"S S S S S S S H H H","19":"S S S S S S S S S S","20":"S S S S S S S S S S","21":"S S S S S S S S S S"},"pair":{"2":"P P P P P P H H H H","3":"P P P P P P H H H H","4":"H H H P P H H H H H","5":"D D D D D D D D H H","6":"P P P P P H H H H H","7":"P P P P P P H H H H","8":"P P P P P P P P H H","9":"P P P P P S P P S S","10":"S S S S S S S S S S","11":"P P P P P P P P P H"}}};
+const WOO_ROW={};
+for(const k in WOO){WOO_ROW[k]={};for(const kind in WOO[k]){WOO_ROW[k][kind]={};for(const key in WOO[k][kind])WOO_ROW[k][kind][key]=WOO[k][kind][key].split(" ");}}
+// 出典で裏が取れたルールの組み合わせだけ判定する（それ以外は「準備中」で選べない）
+function rulesVerified(r){
+  if(r.variant==="freebet")return true;
+  if(r.hole==="obo")return false;
+  if(r.hole==="enhc")return r.decks===6&&r.soft17==="S17"&&r.dbl==="9-11"&&r.das&&r.surrender==="none";
+  if(r.surrender==="early")return r.decks===6;
+  return true;
 }
-function softCode(t,d){
-  if(t<=14)return(d>=5&&d<=6)?"D":"H";
-  if(t===15||t===16)return(d>=4&&d<=6)?"D":"H";
-  if(t===17)return(d>=3&&d<=6)?"D":"H";
-  if(t===18){if(rules.soft17==="H17")return(d>=2&&d<=6)?"Ds":(d===7||d===8)?"S":"H";return(d>=3&&d<=6)?"Ds":(d===2||d===7||d===8)?"S":"H";}
-  if(t===19){if(rules.soft17==="H17"&&d===6)return"Ds";return"S";}
-  return"S";
-}
-function pairCode(p,d){
-  if(p===11)return"P"; if(p===10)return"S";
-  if(p===9)return(d===7||d>=10)?"S":"P";
-  if(p===8)return"P";
-  if(p===7)return(d>=2&&d<=7)?"P":"H";
-  if(p===6)return(d>=(rules.das?2:3)&&d<=6)?"P":"H";
-  if(p===5)return hardCode(10,d);
-  if(p===4)return(rules.das&&(d===5||d===6))?"P":"H";
-  if(p===2||p===3)return(d>=(rules.das?2:4)&&d<=7)?"P":"H";
-  return"H";
-}
-function rawCode(h,d){return h.isPair?pairCode(h.pairVal,d):h.soft?softCode(h.total,d):hardCode(h.total,d);}
-
-// --- 1/2デッキの標準偏差（S17基準、published deviations）---
-function deckAdjust(h,d,c){
-  if(rules.decks>=4)return c;
-  if(rules.decks===2){
-    if(!h.isPair&&!h.soft&&h.total===11&&d===11&&rules.soft17==="S17")return"D"; // DD S17: 11 vs A ダブル
-    return c;
-  }
-  // single deck
-  if(h.isPair){
-    if(h.pairVal===7&&d===10)return"S";                          // 7,7 vs 10 スタンド
-    if(h.pairVal===6&&d===7&&rules.soft17==="H17")return"P";     // 6,6 vs 7 (H17) スプリット
-    if(h.pairVal===2&&d===3)return"P";                           // 2,2 vs 3 スプリット
-    return c;
-  }
+function tableCode(h,d){
+  const T=WOO_ROW[rules.hole==="enhc"?"EURO":(rules.decks+(rules.soft17==="H17"?"H":"S"))];
+  const i=d-2;
+  if(h.isPair&&T.pair[h.pairVal])return T.pair[h.pairVal][i];
   if(h.soft){
-    if(h.total===13&&d===4)return"D";                            // A,2 vs 4
-    if(h.total===14&&d===4)return"D";                            // A,3 vs 4
-    if(h.total===17&&d===2)return"D";                            // A,6 vs 2
-    if(h.total===18&&d===11&&rules.soft17==="S17")return"S";     // A,7 vs A スタンド
-    if(h.total===19&&d===6)return"Ds";                           // A,8 vs 6 ダブル
-    return c;
+    if(h.total<13)return(d===5||d===6)?"D":"H"; // ソフト12（分けられないA,A）は WoO の注記「5・6にダブル、それ以外ヒット」
+    return T.soft[Math.min(21,h.total)][i];
   }
-  if(h.total===8&&(d===5||d===6))return"D";                      // hard 8 vs 5,6
-  if(h.total===9&&d===2)return"D";                               // hard 9 vs 2
-  if(h.total===11&&d===11)return"D";                             // hard 11 vs A
-  return c;
+  return T.hard[Math.max(4,Math.min(21,h.total))][i];
 }
-
-// --- ENHC（ノーホールカード）: 10・Aにダブル/スプリットしない ---
-function holeAdjust(h,d,c){
-  if(rules.hole!=="enhc")return c;                               // peek/OBO は通常戦略
-  if((c==="D"||c==="Ds")&&(d===10||d===11))return c==="Ds"?"S":"H";
-  if(c==="P"&&d===11)return"H";                                  // Aにはスプリットしない（A,A vs 10 は d=10 で維持）
-  return c;
-}
-
-// --- サレンダー付与（none / late / early）---
-function surrenderAdjust(h,d,c){
-  const s=rules.surrender;
-  if(!canSurr(h))return c;
-  if(s==="early"){                                               // アーリー（10・A、ピーク前）
-    if(d===11){
-      if(h.isPair&&[3,6,7,8].includes(h.pairVal))return"R";
-      if(!h.isPair&&!h.soft&&((h.total>=5&&h.total<=7)||(h.total>=12&&h.total<=17)))return"R";
-    }
-    if(d===10){
-      if(h.isPair&&[7,8].includes(h.pairVal))return"R";
-      if(!h.isPair&&!h.soft&&h.total>=14&&h.total<=16)return"R";
-    }
-    return c;
+// アーリーサレンダー（4〜8デッキ）: WoO 一覧どおり。10・A 以外はレイトと同じ表を使う
+function earlySurrender(h,d){
+  if(rules.surrender!=="early"||!canSurr(h))return false;
+  if(d===11){
+    if(h.isPair)return[3,6,7,8].includes(h.pairVal)||(h.pairVal===2&&rules.soft17==="H17");
+    return!h.soft&&((h.total>=5&&h.total<=7)||(h.total>=12&&h.total<=17));
   }
-  // late surrender
-  if(!h.isPair&&!h.soft){
-    if(h.total===16&&(d===9||d===10||d===11))return"R";
-    if(h.total===15&&d===10)return"R";
-    if(rules.soft17==="H17"){
-      if(h.total===15&&d===11)return"R";
-      if(h.total===17&&d===11)return"R";
-    }
+  if(d===10){
+    if(h.isPair)return[7,8].includes(h.pairVal);
+    return!h.soft&&h.total>=14&&h.total<=16;
   }
-  if(h.isPair&&h.pairVal===8&&d===11&&rules.soft17==="H17")return"R"; // 8,8 vs A (H17)
-  return c;
+  return false;
 }
-
 function decide(h,d){
-  let c;
-  if(rules.variant==="freebet"){c=fbCode(h,d);}
-  else{
-    c=rawCode(h,d);
-    c=deckAdjust(h,d,c);
-    c=holeAdjust(h,d,c);
-    c=surrenderAdjust(h,d,c);
+  if(rules.variant==="freebet"){
+    const c=fbCode(h,d);
+    if(c==="D")return canDouble(h)?"double":"hit";
+    if(c==="Ds")return canDouble(h)?"double":"stand";
+    if(c==="P")return"split"; if(c==="R")return"surrender"; if(c==="S")return"stand"; return"hit";
   }
-  if(c==="D")return canDouble(h)?"double":"hit";
-  if(c==="Ds")return canDouble(h)?"double":"stand";
-  if(c==="P")return"split"; if(c==="R")return"surrender"; if(c==="S")return"stand"; return"hit";
+  if(earlySurrender(h,d))return"surrender";
+  const c=tableCode(h,d), dbl=canDouble(h), sur=canSurr(h), das=rules.das;
+  const dh=dbl?"double":"hit";
+  switch(c){
+    case"H":return"hit"; case"S":return"stand"; case"D":return dh; case"Ds":return dbl?"double":"stand"; case"P":return"split";
+    case"Ph":return das?"split":"hit"; case"Pd":return das?"split":dh; case"Ps":return das?"split":"stand";
+    case"Rh":return sur?"surrender":"hit"; case"Rs":return sur?"surrender":"stand"; case"Rp":return sur?"surrender":"split";
+    case"Rp2":return(sur&&!das)?"surrender":"split";
+  }
+  return"hit";
 }
 
 /* ===== Free Bet Blackjack（6D・H17・Push22）=====
@@ -1635,7 +1590,13 @@ function refreshRule(){
   if(mode==="strategy"&&sState&&!sAnswered){sState.correct=decide(sState.info,sState.d);state.correct=sState.correct;legalButtons(sState.info);}
   if(mode==="play"&&round&&round.phase==="play"&&!playTimer)askDecision();  // 結果ビート中(タイマー保留)は触らない
 }
-function bindSeg(id,fn){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener("click",()=>{fn(b.dataset.v);syncSegs();refreshRule();}));}
+// 出典で裏が取れていない組み合わせ（OBO／ENHCの欧州プリセット以外／1・2デッキのアーリーサレンダー）は判定表が準備中。選ばれたら元に戻して知らせる
+function showRulePending(msg){const n=document.getElementById("rule-pending");if(!n)return;n.textContent=msg||"";n.style.display=msg?"block":"none";}
+function bindSeg(id,fn){document.querySelectorAll(`#${id} button`).forEach(b=>b.addEventListener("click",()=>{
+  const prev={...rules};fn(b.dataset.v);
+  if(!rulesVerified(rules)){Object.assign(rules,prev);showRulePending("この組み合わせは判定表を準備中です（Wizard of Odds の表で裏が取れたルールだけ判定しています）。ENHCは「欧州ENHC」プリセット、アーリーサレンダーは4〜8デッキで使えます。");}
+  else showRulePending("");
+  syncSegs();refreshRule();}));}
 bindSeg("seg-s17",v=>rules.soft17=v);bindSeg("seg-dbl",v=>rules.dbl=v);bindSeg("seg-sur",v=>rules.surrender=v);
 bindSeg("seg-das",v=>rules.das=(v==="on"));bindSeg("seg-deck",v=>rules.decks=parseInt(v,10));bindSeg("seg-hole",v=>rules.hole=v);
 bindSeg("seg-variant",v=>rules.variant=v);
@@ -1650,7 +1611,7 @@ const PRESETS=[
   {name:"欧州ENHC",r:{...BASE,decks:6,dbl:"9-11",surrender:"none",hole:"enhc"}},
   {name:"Free Bet",r:{...BASE,soft17:"H17",surrender:"late",variant:"freebet"}},
 ];
-(function(){const w=document.getElementById("presets");PRESETS.forEach(p=>{const b=document.createElement("button");b.className="preset";b.textContent=p.name;b.addEventListener("click",()=>{Object.assign(rules,p.r);syncSegs();refreshRule();});w.appendChild(b);});})();
+(function(){const w=document.getElementById("presets");PRESETS.forEach(p=>{const b=document.createElement("button");b.className="preset";b.textContent=p.name;b.addEventListener("click",()=>{Object.assign(rules,p.r);showRulePending("");syncSegs();refreshRule();});w.appendChild(b);});})();
 
 document.querySelectorAll(".act").forEach(b=>b.addEventListener("click",()=>answer(b.dataset.a)));
 document.getElementById("next-s").addEventListener("click",()=>{if(sAnswered)dealStrategy();});

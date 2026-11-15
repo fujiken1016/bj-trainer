@@ -1,1 +1,3 @@
 .DS_Store
+bj_tools/expected.json
+bj_tools/__pycache__/
