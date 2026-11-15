@@ -412,6 +412,16 @@
   .book .bl:hover{background:var(--gold); color:#241f10}
   .books-disc{font-size:10.5px; color:var(--ink-dim); opacity:.85; margin-top:15px; line-height:1.75}
   @media (max-width:560px){ .books{padding:18px 14px} .book-grid{grid-template-columns:1fr} }
+
+/* J517: ルール設定を畳む（Wizard of Odds・BJ系トレーナーは卓が1画面目。設定は要約1行＋開いて変更） */
+.rulefold{margin-bottom:10px}
+.rulefold>summary{list-style:none;display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-height:48px;padding:8px 14px;border:1px solid var(--border);border-radius:12px;background:#0000002e;cursor:pointer;font-family:var(--ui)}
+.rulefold>summary::-webkit-details-marker{display:none}
+.rulefold .rf-lab{font-weight:700;font-size:14px;color:var(--gold,#d4a94a)}
+.rulefold .rf-cur{flex:1 1 auto;font-size:14px;color:var(--ink)}
+.rulefold .rf-go{font-size:14px;font-weight:700;color:var(--ink);border:1px solid var(--border);border-radius:9999px;padding:4px 12px}
+.rulefold[open] .rf-go::after{content:"を閉じる"}
+.rulefold[open]>summary{margin-bottom:12px}
 </style>
 <!-- GA4 host-guard J347: 本番ホスト以外(localhost/pages.dev/プレビュー)では計測を送らない -->
 <script>(function(){var w=window;w.dataLayer=w.dataLayer||[];w.gtag=function(){w.dataLayer.push(arguments);};if(!/(^|\.)shoubu-lab\.com$/.test(location.hostname))return;gtag('js',new Date());gtag('config','G-2VF02QTTNV');var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=G-2VF02QTTNV';document.head.appendChild(s);})();</script>
@@ -695,6 +705,8 @@ header.hd{display:block;text-align:center}
   </div>
 
   <div id="mode-tablearea">
+    <details class="rulefold" id="rulefold">
+    <summary><span class="rf-lab">ルール設定</span><span class="rf-cur" id="rf-cur">6デッキ・S17・DAS・レイトサレンダー</span><span class="rf-go">変更</span></summary>
     <div class="rules" style="margin-bottom:8px">
       <div class="presets" id="presets"></div>
       <div class="rgroup"><span class="lab">ゲーム<button class="info" type="button" aria-label="ゲームの説明">i<span class="tip"><b>どのブラックジャックか。</b><br><b>クラシック</b>＝通常のブラックジャック。<br><b>Free Bet</b>＝ダブル/スプリットの追加分を<u>カジノが負担</u>する変種。9/10/11のダブルと10以外の全ペアのスプリットが「タダ」。代わりに<b>ディーラー22はプッシュ（引き分け）</b>。</span></button></span><div class="seg" id="seg-variant"><button data-v="classic">クラシック</button><button data-v="freebet">Free Bet</button></div></div>
@@ -705,6 +717,7 @@ header.hd{display:block;text-align:center}
       <div class="rgroup"><span class="lab">デッキ<button class="info" type="button" aria-label="デッキ数の説明">i<span class="tip"><b>使用デッキ数。</b>少ないほどプレイヤー有利（1→8で約+0.5%ハウス寄り）。<br><b>4-8</b>は戦略表が同じ。<br><b>1・2デッキ</b>はカード除去の影響が強く一部のマスが変わる（例: 1デッキは<b>11 vs A もダブル</b>、hard8 vs5,6もダブル、7,7 vs10はスタンド）。</span></button></span><div class="seg" id="seg-deck"><button data-v="1">1</button><button data-v="2">2</button><button data-v="6">4-8</button></div></div>
       <div class="rgroup"><span class="lab">ホールカード<button class="info" type="button" aria-label="ホールカードの説明">i<span class="tip"><b>ディーラーの伏せ札の扱い。</b>ディーラーがBJの時、<u>ダブル/スプリットの追加分まで取られるか</u>が変わる。<br><b>ピーク</b>＝先にBJを確認。損は元ベットのみ（標準）。<br><b>ENHC</b>＝伏せ札なし。ディーラーBJだと<b>追加分も全没収</b>→<b>10・Aにダブル/スプリットしない</b>（11vs10/Aはヒット、8,8vsAはヒット）。<br><b>OBO</b>＝伏せ札なしだが追加分は返却されるので、<b>戦略はピークと同じ</b>。</span></button></span><div class="seg" id="seg-hole"><button data-v="peek">ピーク</button><button data-v="enhc">ENHC</button><button data-v="obo">OBO</button></div></div>
     </div>
+    </details>
     <div class="fbnote" id="fbnote" style="margin-bottom:18px">Free Bet（6デッキ・H17・Push22 固定／Wizard of Odds 実ベット表準拠）：フリーダブル<b>9/10/11</b>とフリースプリット<b>10以外の全ペア</b>は常に実行（<b>5,5はダブル・10,10はスタンド</b>）。ソフトは<b>A,2〜A,4は常にヒット</b>。ディーラー22はプッシュ。<b>サレンダー</b>はテーブル次第なので左のトグルで切替可。他トグルは無効。</div>
     <div style="height:10px"></div>
 
@@ -1895,6 +1908,15 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelect
 
 /* ============ INIT ============ */
 syncSegs(); updateStats(); renderMistakes(); setMode("strategy");
+
+/* J517: 現在のルールを要約1行に出す。スマホは畳んだ状態で開始、PCは開いて開始 */
+(function(){var f=document.getElementById("rulefold"),c=document.getElementById("rf-cur");if(!f||!c)return;
+function sum(){var r=rules;if(r.variant==="freebet"){c.textContent="Free Bet・6デッキ・H17"+(r.surrender==="none"?"":"・サレンダーあり");return;}
+var d=r.decks===6?"4〜8デッキ":r.decks+"デッキ";var a=[d,r.soft17,r.das?"DAS":"DASなし",{none:"サレンダーなし",late:"レイトサレンダー",early:"アーリーサレンダー"}[r.surrender]];
+if(r.dbl!=="any")a.push(r.dbl==="9-11"?"ダブル9〜11":"ダブル10〜11");if(r.hole!=="peek")a.push(r.hole.toUpperCase());c.textContent=a.join("・");}
+var orig=syncSegs;syncSegs=function(){orig.apply(this,arguments);sum();};
+try{if(window.matchMedia("(min-width:720px)").matches)f.open=true;}catch(e){}
+sum();})();
 </script>
 
 </body>
